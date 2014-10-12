@@ -43,8 +43,8 @@ private:
     };
 
 public:
-    static ulong * GetBalancedParentheses(CHgtArray *, ulong, ulong &);
-    static ulong * GetBalancedParentheses(const char *, ulong &);
+    static ulong *GetBalancedParentheses(CHgtArray *, ulong, ulong &);
+    static ulong *GetBalancedParentheses(const char *, ulong &);
     static void SaveToFile(const char *, ulong *, ulong);
 };
 

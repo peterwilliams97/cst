@@ -14,23 +14,20 @@ double log2(double x) {
 
 time_t Tools::startTime;
 
-void Tools::StartTimer()
-{
+void Tools::StartTimer() {
     startTime = time(NULL);
 }
 
-double Tools::GetTime()
-{
+double Tools::GetTime() {
     time_t stopTime = time(NULL);
     return difftime( stopTime, startTime );
 }
 
-uchar * Tools::GetRandomString(unsigned min, unsigned max, unsigned &alphabetSize)
-{
-    unsigned len = std::rand() % (max - min) + min;
+uchar *Tools::GetRandomString(uint min, uint max, uint &alphabetSize) {
+    uint len = std::rand() % (max - min) + min;
     alphabetSize = std::rand() % 26 + 1;
     uchar* temp = new uchar[len + 2];
-    for (unsigned i = 0; i < len; i++)
+    for (uint i = 0; i < len; i++)
         temp[i] = 97 + std::rand() % alphabetSize;
     temp[len] = 0u ;temp[len+1] = '\0';
     return temp;
@@ -60,13 +57,13 @@ void Tools::PrintBitSequence(ulong *A, ulong len)
     std::cout << "\n";
 }
 
-unsigned Tools::FloorLog2(ulong i)
+uint Tools::FloorLog2(ulong i)
 {
     uint b = 0;
-    if (i == 0)
+    if (i == 0) {
         return 0;
-    while (i)
-    {
+    }
+    while (i) {
         b++;
         i >>= 1;
     }
@@ -74,10 +71,10 @@ unsigned Tools::FloorLog2(ulong i)
 }
 
 //Creating table to find logn in small time
-unsigned * Tools::MakeTable()
+uint *Tools::MakeTable()
 {
-    unsigned *table = new unsigned[512];
-    for(unsigned i = 0; i < 9; i++)
+    uint *table = new uint[512];
+    for (uint i = 0; i < 9; i++)
     {
         if (i == 0)
            table[i] = 0;
@@ -100,12 +97,12 @@ unsigned * Tools::MakeTable()
         if (i >= (1 << 8 ) && i < (1 << 9 ))
            table[i] = 8;
     }
-        return table;
+    return table;
 }
 
-unsigned Tools::FastFloorLog2(unsigned i)
+uint Tools::FastFloorLog2(uint i)
 {
-    unsigned *table = MakeTable(); unsigned u;
+    uint *table = MakeTable(); uint u;
     if (i >> 24)    u = 22 + table[ i >> 24] ;
     if (i >> 16)    u = 14 + table[ i >> 16] ;
     if (i >> 8)     u = 6 + table[ i >> 8] ;
@@ -114,23 +111,23 @@ unsigned Tools::FastFloorLog2(unsigned i)
     return u;
 }
 
-unsigned Tools::CeilLog2(ulong i)
+uint Tools::CeilLog2(ulong i)
 {
-    unsigned j = FloorLog2(i);
+    uint j = FloorLog2(i);
     if ((ulong)(1lu << j) != i)
         return j + 1;
 
     return j;
 }
 
-uchar * Tools::GetFileContents(char *filename, ulong maxSize)
+uchar *Tools::GetFileContents(char *filename, ulong maxSize)
 {
     std::ifstream::pos_type posSize;
     std::ifstream file ((char *)filename, std::ios::in|std::ios::binary|std::ios::ate);
     if (file.is_open())
     {
         posSize = file.tellg();
-        ulong size = posSize;
+        ulong size = (ulong)posSize;
         if (maxSize != 0 && size > maxSize)
             size = maxSize;
         char *memblock = new char [size + 1];
@@ -201,12 +198,10 @@ void Tools::RemoveControlCharacters(uchar *data)
 
 }
 */
-unsigned Tools::bits (ulong n)
-
-   { uint b = 0;
-     while (n)
-    { b++; n >>= 1; }
-     return b;
-   }
-
-
+uint Tools::bits (ulong n) {
+    uint b = 0;
+    while (n) {
+        b++; n >>= 1;
+    }
+    return b;
+}

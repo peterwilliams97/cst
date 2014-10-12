@@ -81,15 +81,15 @@ class RBTree{
 
     void checkTree();
 
-    void rbInsertFixup(RBNode* z, void (*updateNode)(RBNode* n, RBTree *T));
-    void rbDeleteFixup(RBNode *x, void (*updateNode)(RBNode* n, RBTree *T));
-    void rbDelete(RBNode *z, void (*updateNode)(RBNode* n, RBTree *T));
-    RBNode* findRightSiblingLeaf(RBNode *n);
-    RBNode* findLeftSiblingLeaf(RBNode *n);
-    RBNode* treeSuccessor(RBNode *x);
-    RBNode* treePredeccessor(RBNode *x);
-    RBNode* treeMinimum(RBNode *x);
-    RBNode* treeMaximum(RBNode *x);
+    void rbInsertFixup(RBNode *z, void (*updateNode)(RBNode *n, RBTree *T));
+    void rbDeleteFixup(RBNode *x, void (*updateNode)(RBNode *n, RBTree *T));
+    void rbDelete(RBNode *z, void (*updateNode)(RBNode *n, RBTree *T));
+    RBNode *findRightSiblingLeaf(RBNode *n);
+    RBNode *findLeftSiblingLeaf(RBNode *n);
+    RBNode *treeSuccessor(RBNode *x);
+    RBNode *treePredeccessor(RBNode *x);
+    RBNode *treeMinimum(RBNode *x);
+    RBNode *treeMaximum(RBNode *x);
 
     bool isLeftChild(RBNode *n);
     bool isRightChild(RBNode *n);
@@ -101,16 +101,15 @@ class RBTree{
     void checkSubTree(RBNode *n);
     void checkNode(RBNode *x);
 
-    void deleteNode(RBNode* x){
-        if (x->left!=nil) deleteNode(x->left);
-        if (x->right!=nil) deleteNode(x->right);
+    void deleteNode(RBNode *x){
+        if (x->left != nil) deleteNode(x->left);
+        if (x->right != nil) deleteNode(x->right);
         delete x;
     }
 
-    private:
-    void leftRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T));
-    void rightRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T));
-
+private:
+    void leftRotate(RBNode *x, void (*updateNode)(RBNode *n, RBTree *T));
+    void rightRotate(RBNode *x, void (*updateNode)(RBNode *n, RBTree *T));
 };
 
 #endif

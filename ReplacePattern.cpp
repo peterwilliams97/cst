@@ -1,7 +1,7 @@
 #include "ReplacePattern.h"
 //This class returns the changed bit stream used for querries kike ramk() rank )( select() and select)(
 
-ReplacePattern::ReplacePattern(unsigned check, unsigned sampleRate)
+ReplacePattern::ReplacePattern(uint check, uint sampleRate)
 {
     this->sampleRate = sampleRate;
     createtable(check);
@@ -9,22 +9,22 @@ ReplacePattern::ReplacePattern(unsigned check, unsigned sampleRate)
 
 ReplacePattern::~ReplacePattern()
 {
-    delete [] answer;
+    delete[] answer;
 }
 
-void ReplacePattern::createtable(unsigned check)
+void ReplacePattern::createtable(uint check)
 {
     ulong k = 1 << sampleRate;
-    ulong *B = new ulong[sampleRate/W + 1];
-    ulong *C = new ulong[sampleRate/W + 1];
-    answer = new ulong[sampleRate*k/W + 1];
+    ulong *B = new ulong[sampleRate / W + 1];
+    ulong *C = new ulong[sampleRate / W + 1];
+    answer = new ulong[sampleRate *k / W + 1];
 
     // Iterate through all possible numbers of length  sampleRate bits
     for (ulong i = 0; i < k; i++)
     {
         Tools::SetVariableField(B, sampleRate, 0, i);
         for (ulong j = 0; j < sampleRate - 1; j++)
-            if(check)
+            if (check)
             {
                 if ((Tools::GetField(B, 1, j)) && !(Tools::GetField(B, 1, j + 1)))
                     Tools::SetField(C, 1, j, 1);
@@ -40,8 +40,8 @@ void ReplacePattern::createtable(unsigned check)
 
         Tools::SetField(answer, sampleRate, i, Tools::GetVariableField(C, sampleRate, 0));
     }
-    delete [] B;
-    delete [] C;
+    delete[] B;
+    delete[] C;
 }
 
 // Replace pattern for vector of length W bits
@@ -49,7 +49,7 @@ ulong ReplacePattern::returnWord(ulong *data, ulong index, ulong n)
 {
     // Init result
     ulong result = 0;
-    unsigned len = W;
+    uint len = W;
     if (len + index > n) {
         len = n - index;
     }
@@ -82,7 +82,7 @@ ulong ReplacePattern::returnWord(ulong *data, ulong index, ulong n)
     return result;
 }
 
-ulong* ReplacePattern::returnRP(ulong *data, ulong len, ulong index, ulong n)
+ulong *ReplacePattern::returnRP(ulong *data, ulong len, ulong index, ulong n)
 {
     if (len + index > n)
         len = n - index;

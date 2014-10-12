@@ -30,38 +30,39 @@ void RBTree::checkTree(){
     cout << "stop" << endl;
 }
 
-void RBTree::leftRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T)){
-    RBNode* y = x->right;
+void RBTree::leftRotate(RBNode *x, void (*updateNode)(RBNode *n, RBTree *T)){
+    RBNode *y = x->right;
     x->right=y->left;
     if (y->left != nil) y->left->parent=x;
-    y->parent=x->parent;
-    if (x->parent==this->nil)
-        root=y;
-    else {
-        if (x == x->parent->left)
-            x->parent->left=y;
-        else
-        x->parent->right=y;
+    y->parent = x->parent;
+    if (x->parent == this->nil) {
+        root = y;
+    } else {
+        if (x == x->parent->left) {
+            x->parent->left = y;
+        } else {
+            x->parent->right = y;
         }
-    y->left=x;
-    x->parent=y;
+    }
+    y->left = x;
+    x->parent = y;
 
     // update counters of x and y !
     if (updateNode != 0) {
         updateNode(x, this);
         updateNode(y, this);
-        }
+  }
 }
 
-void RBTree::rightRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T)){
-    RBNode* y = x->left;
-    x->left=y->right;
+void RBTree::rightRotate(RBNode *x, void (*updateNode)(RBNode* n, RBTree *T)){
+    RBNode *y = x->left;
+    x->left = y->right;
     if (y->right != nil) y->right->parent=x;
     y->parent=x->parent;
 
-    if (x->parent==nil)
+    if (x->parent == nil) {
         root=y;
-    else {
+    } else {
         if (x == x->parent->right) {
             x->parent->right=y;
         } else {
@@ -69,15 +70,15 @@ void RBTree::rightRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T)){
         }
     }
 
-    y->right=x;
-    x->parent=y;
+    y->right = x;
+    x->parent = y;
     if (updateNode != 0) {
         updateNode(x, this);
         updateNode(y, this);
-        }
+    }
 }
 
-void RBTree::rbInsertFixup(RBNode* z, void (*updateNode)(RBNode* n, RBTree *T)){
+void RBTree::rbInsertFixup(RBNode *z, void (*updateNode)(RBNode *n, RBTree *T)){
     RBNode *y;
 
     if (z->parent==nil) return;
@@ -95,9 +96,8 @@ void RBTree::rbInsertFixup(RBNode* z, void (*updateNode)(RBNode* n, RBTree *T)){
             }
             else
             {
-                if (z==z->parent->right)
-                {
-                    z=z->parent;      // Case 2a
+                if (z==z->parent->right) {
+                    z = z->parent;      // Case 2a
                     leftRotate(z, updateNode);  // Case 2a
                 }
                 z->parent->color=BLACK;             // Case 3a
@@ -107,7 +107,6 @@ void RBTree::rbInsertFixup(RBNode* z, void (*updateNode)(RBNode* n, RBTree *T)){
         }
         else
         {
-
             y = z->parent->parent->left;
 
             if (y->color==RED)
@@ -212,7 +211,7 @@ void RBTree::rbDeleteFixup(RBNode *x, void (*updateNode)(RBNode* n, RBTree *T)){
 }
 
 // quite similar to Cormen et al
-void RBTree::rbDelete(RBNode *z, void (*updateNode)(RBNode* n, RBTree *T)){
+void RBTree::rbDelete(RBNode *z, void (*updateNode)(RBNode *n, RBTree *T)){
     RBNode *y,*x,*y_oldParent;
     y_oldParent=nil;
     if (z->left == nil || z->right == nil) {
@@ -255,9 +254,7 @@ void RBTree::rbDelete(RBNode *z, void (*updateNode)(RBNode* n, RBTree *T)){
 
         y->left->parent = y;
         y->right->parent = y;
-
     }
-
 
     if (old_y == BLACK) {
         rbDeleteFixup(x, updateNode);
@@ -265,11 +262,10 @@ void RBTree::rbDelete(RBNode *z, void (*updateNode)(RBNode* n, RBTree *T)){
 
     updateNode(y, this);
     if (y_oldParent!=nil) updateNode(y_oldParent, this);
-
 }
 
 
-RBNode* RBTree::treeSuccessor(RBNode *x){
+RBNode *RBTree::treeSuccessor(RBNode *x){
     if (x->right != nil) return treeMinimum(x->right);
 
     RBNode *y = x->parent;
@@ -280,46 +276,45 @@ RBNode* RBTree::treeSuccessor(RBNode *x){
     return y;
 }
 
-RBNode* RBTree::treePredeccessor(RBNode *x){
+RBNode *RBTree::treePredeccessor(RBNode *x){
     if (x->left != nil) return treeMaximum(x->left);
 
     RBNode *y = x->parent;
     while ((y!=nil) && (x == y->left)) {
-        x=y;
-        y=y->parent;
+        x = y;
+        y = y->parent;
     }
     return y;
 }
 
-
-RBNode* RBTree::treeMinimum(RBNode *x){
+RBNode *RBTree::treeMinimum(RBNode *x){
     while (x->left != nil) x=x->left;
     return x;
 }
 
-RBNode* RBTree::treeMaximum(RBNode *x){
+RBNode *RBTree::treeMaximum(RBNode *x){
     while (x->right != nil) x=x->right;
     return x;
 }
 
 
 bool RBTree::isLeftChild(RBNode *n){
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (n->parent == nil) {
         cerr << "error: isLeftChild, no parent." << endl;
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
     return (n->parent->left == n);
 }
 
 bool RBTree::isRightChild(RBNode *n){
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if ( n->parent == nil) {
         cerr << "error: isLeftChild, no parent." << endl;
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
     return (n->parent->right == n);
 }
 
@@ -349,7 +344,7 @@ RBNode* RBTree::findRightSiblingLeaf(RBNode *n){
     return n;
 }
 
-RBNode* RBTree::findLeftSiblingLeaf(RBNode *n){
+RBNode *RBTree::findLeftSiblingLeaf(RBNode *n){
     // go up:
     while (true) {
         if (n->parent!=nil) {
@@ -374,7 +369,6 @@ RBNode* RBTree::findLeftSiblingLeaf(RBNode *n){
     return n;
 }
 
-
 int RBTree::getNodeMaxDepth(RBNode *n) {
     int l;
     int r;
@@ -396,7 +390,6 @@ int RBTree::getNodeMinDepth(RBNode *n) {
 
     return (1+(l>r?r:l));
 }
-
 
 void RBTree::printSubTree(RBNode *n){
     cout << ((n->color==BLACK)?"B":"R") << n << " [";
@@ -429,17 +422,15 @@ void RBTree::checkSubTree(RBNode *n){
 
 }
 
-
 void RBTree::checkNode(RBNode *n){
-    if (n->left!=nil) {
+    if (n->left != nil) {
         if (n->left->parent != n) {
             cout << "au"<< endl;
             exit(1);
         }
-
     }
 
-    if (n->right!=nil) {
+    if (n->right != nil) {
         if (n->right->parent != n) {
             cout << "au"<< endl;
             exit(1);

@@ -3,16 +3,15 @@
 #include <iostream>
 #include "Tools.h"
 
-
 class ReplacePattern
 {
 private:
     ulong* answer;
-    unsigned sampleRate;
-    void createtable(unsigned);
+    uint sampleRate;
+    void createtable(uint);
 
 public:
-    ReplacePattern(unsigned, unsigned);
+    ReplacePattern(uint, uint);
     ~ReplacePattern();
     ulong returnWord(ulong *, ulong, ulong);
     ulong* returnRP(ulong *, ulong, ulong, ulong);

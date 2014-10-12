@@ -28,8 +28,7 @@
 //This Class use a superblock size of 256-512 bits
 //and a block size of 32-64 bits also
 
-
-const unsigned char __popcount_tab[] =
+const uchar __popcount_tab[] =
 {
 0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
 1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
@@ -41,22 +40,15 @@ const unsigned char __popcount_tab[] =
 3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8,
 };
 
-const unsigned char select_tab[] =
+const uchar select_tab[] =
 {
 0,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 6,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 7,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 6,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 8,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 6,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 7,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
-
 6,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,5,1,2,1,3,1,2,1,4,1,2,1,3,1,2,1,
 };
 
@@ -70,21 +62,21 @@ inline ulong bits (ulong n){
 
 #if W == 32
     // 32 bit version
-    inline unsigned popcount (register ulong x){
+    inline uint popcount (ulong x){
         return __popcount_tab[(x >>  0) & 0xff]  + __popcount_tab[(x >>  8) & 0xff]  + __popcount_tab[(x >> 16) & 0xff] + __popcount_tab[(x >> 24) & 0xff];
     }
 #else
     // 64 bit version
-    inline unsigned popcount (register ulong x){
+    inline uint popcount (ulong x){
         return __popcount_tab[(x >>  0) & 0xff]  + __popcount_tab[(x >>  8) & 0xff]  + __popcount_tab[(x >> 16) & 0xff] + __popcount_tab[(x >> 24) & 0xff] + __popcount_tab[(x >> 32) & 0xff] + __popcount_tab[(x >> 40) & 0xff] + __popcount_tab[(x >> 48) & 0xff] + __popcount_tab[(x >> 56) & 0xff];
     }
 #endif
 
-inline unsigned popcount16 (register int x){
+inline uint popcount16 (int x){
   return __popcount_tab[x & 0xff]  + __popcount_tab[(x >>  8) & 0xff];
 }
 
-inline unsigned popcount8 (register int x){
+inline uint popcount8 (int x){
   return __popcount_tab[x & 0xff];
 }
 
@@ -175,14 +167,14 @@ ulong BitRank::select(ulong x) {
         return 0;
 
     ulong l=0, r=n/s;
-    ulong mid=(l+r)/2;
+    ulong mid = (l + r) / 2;
     ulong rankmid = Rs[mid];
-    while (l<=r) {
+    while (l <= r) {
         if (rankmid<x)
-            l = mid+1;
+            l = mid + 1;
         else
-            r = mid-1;
-        mid = (l+r)/2;
+            r = mid - 1;
+        mid = (l + r) / 2;
         rankmid = Rs[mid];
     }
     //sequential search using popcount over a int
@@ -195,7 +187,7 @@ ulong BitRank::select(ulong x) {
     else
         j = rp->returnWord(data, left << wordShift, n);
 
-    unsigned ones = popcount(j);
+    uint ones = popcount(j);
     while (ones < x) {
         x-=ones;left++;
         if (left > integers)
@@ -271,7 +263,7 @@ ulong BitRank::select0(ulong x) {
     else
         j = rp->returnWord(data, left << wordShift, n);
 
-    unsigned zeros = W - popcount(j);
+    uint zeros = W - popcount(j);
     while (zeros < x) {
         x-=zeros;
         left++;

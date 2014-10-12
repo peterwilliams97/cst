@@ -56,8 +56,8 @@ private:
     Hash *bbtable;
     void calcsizes();
     void filltables(bool);
-    void fcompchar(unsigned char, unsigned char*, char*);
-    void bcompchar(unsigned char, unsigned char* );
+    void fcompchar(uchar, uchar*, char*);
+    void bcompchar(uchar, uchar* );
 public:
     Parentheses(ulong* bp, ulong n, bool bwd, BitRank *);
     ~Parentheses();

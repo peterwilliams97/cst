@@ -26,19 +26,18 @@
 using namespace std;
 
 // Longest Common SubString (A,B)
-void lcss()
-{
+void lcss() {
     // A=aaabbbccc, B=ccbbbaa ==> lcss(A,B)=bbb
     //const char *A = "aaabbbccc", *B = "ccbbbaa";
     //uchar *text = (uchar*)"aaabbbccc$ccbbbaa";
 
     const char *A = "12345", *B = "3456";
-    uchar *text = (uchar*)"12345$3456";
+    uchar *text = (uchar *)"12345$3456";
 
     // One could read from file as follows:
     // uchar *text = Tools::GetFileContents("filename", maxlen);
 
-    ulong n = strlen((char*)text);
+    ulong n = strlen((char *)text);
     n++; // this takes the end symbol 0u as part of the text
 
     ulong splitpos = strlen(A); // A is to the left, B is to the right
@@ -48,7 +47,7 @@ void lcss()
     // text could be deleted now, and recovered as follows:
 
     cout << "... for text A$B=";
-    cout << (char*)sst->substring(0, n - 1) << '\n';
+    cout << (char *)sst->substring(0, n - 1) << '\n';
 
     // NOTE: to save some memory during construction, one can also
     // instruct the constructor to delete the text as soon as it is
@@ -76,7 +75,8 @@ void lcss()
     // position of last leaf of root in BP
     ulong lastleaf = sst->rightmost(0);
     ulong i;
-    bool *left = new bool[lastleaf+1], *right = new bool[lastleaf+1];
+    bool *left = new bool[lastleaf + 1];
+    bool *right = new bool[lastleaf + 1];
 
     /*******************************************************************
     * BP representation makes it easy to allocate additional fields    *
@@ -104,23 +104,23 @@ void lcss()
 
     for (i = 0; i <= lastleaf; i++) {
        left[i] = false;
-       right[i]=false;
+       right[i] = false;
     }
 
     for (i = lastleaf; i > 0; i--) {
         if (sst->isleaf(i)) {
            if (sst->textpos(i) < splitpos) {
-               left[i]=true;
-               right[i]=false;
+               left[i] = true;
+               right[i] = false;
            } else {
-               left[i]=false;
-               right[i]=true;
+               left[i] = false;
+               right[i] = true;
            }
         }
-    if (sst->isOpen(i)) {
+        if (sst->isOpen(i)) {
            left[sst->parent(i)] |= left[i];
            right[sst->parent(i)] |= right[i];
-    }
+        }
     }
 
     /*******************************************************************
@@ -130,19 +130,18 @@ void lcss()
     * in the tree satisfying the condition.                            *
     *******************************************************************/
 
-   ulong maxdepth=0, maxindex=0;
-   for (i=0; i<=lastleaf; i++) {
-      if (sst->isOpen(i) && left[i]== true && right[i] == true && (sst->depth(i) > maxdepth)) {
-         maxdepth = sst->depth(i);
-         maxindex = i;
-      }
-  }
+    ulong maxdepth=0, maxindex=0;
+    for (i=0; i<=lastleaf; i++) {
+        if (sst->isOpen(i) && left[i] && right[i] && (sst->depth(i) > maxdepth)) {
+            maxdepth = sst->depth(i);
+            maxindex = i;
+        }
+    }
 
    // Let's find a text position containing the substring
    // ulong textpos = sst->textpos(sst->firstChild(maxindex));
 
    cout << "lcss(" << A << ',' << B << ")=";
-
    cout << (char*)sst->pathlabel(maxindex) << "\n\n";
 
    delete sst;
@@ -150,8 +149,7 @@ void lcss()
    delete[] right;
 }
 
-int main()
-{
+int main() {
     lcss();
     return 0;
 }

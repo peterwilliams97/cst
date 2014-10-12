@@ -51,40 +51,39 @@ private:
 public:
     static void StartTimer();
     static double GetTime();
-    static uchar * GetRandomString(unsigned, unsigned, unsigned &);
+    static uchar *GetRandomString(uint, uint, uint &);
     static void PrintBitSequence(ulong *, ulong);
-    static uchar * GetFileContents(char *, ulong =0);
+    static uchar *GetFileContents(char *, ulong =0);
     static ulong ustrlen(uchar *);
     static char *uctoc(uchar *, bool = false);
     static uchar *ctouc(char *, bool = false);
     static void RemoveControlCharacters(uchar *);
-    static ulong * bp2bitstream(uchar *);
-    static unsigned FloorLog2(ulong);
-    static unsigned CeilLog2(ulong);
-    static unsigned bits (ulong);
-    static unsigned* MakeTable();
-    static unsigned FastFloorLog2(unsigned);
+    static ulong *bp2bitstream(uchar *);
+    static uint FloorLog2(ulong);
+    static uint CeilLog2(ulong);
+    static uint bits (ulong);
+    static uint *MakeTable();
+    static uint FastFloorLog2(uint);
 
-    static inline void SetField(ulong *A, register unsigned len, register ulong index, register ulong x) 
-    {
-        ulong i = index * len / W; 
+    static inline void SetField(ulong *A, uint len, ulong index, ulong x) {
+        ulong i = index * len / W;
         ulong j = index * len - i * W;
-        ulong mask = (j + len < W ? ~0lu << (j + len) : 0) 
+        ulong mask = (j + len < W ? ~0lu << (j + len) : 0)
                      | (W - j < W ? ~0lu >> (W - j) : 0);
         A[i] = (A[i] & mask) | x << j;
-        if (j + len > W) 
+        if (j + len > W)
         {
-            mask = ((~0lu) << (len + j - W));  
+            mask = ((~0lu) << (len + j - W));
             A[i+1] = (A[i+1] & mask) | x >> (W - j);
-        }     
+        }
     }
-    
-    static inline ulong GetField(ulong *A, register unsigned len, register ulong index) 
+
+    static inline ulong GetField(ulong *A, uint len, ulong index)
     {
-        ulong i = index * len / W; 
-        ulong j = index * len - W * i; 
+        ulong i = index * len / W;
+        ulong j = index * len - W * i;
         ulong result;
-        
+
         if (j + len <= W) {
             result = (A[i] << (W - j - len)) >> (W - len);
         } else {
@@ -93,11 +92,11 @@ public:
         }
         return result;
     }
-       
-    
-    static inline ulong GetVariableField(ulong *A, register unsigned len, register ulong index) 
+
+
+    static inline ulong GetVariableField(ulong *A, uint len, ulong index)
     {
-       register ulong i=index/W, j=index-W*i, result;
+       ulong i=index/W, j=index-W*i, result;
        if (j+len <= W)
        result = (A[i] << (W-j-len)) >> (W-len);
        else {
@@ -107,18 +106,17 @@ public:
        return result;
     }
 
-    static inline void SetVariableField(ulong *A, register unsigned len, register ulong index, register ulong x) {
-        ulong i = index / W; 
+    static inline void SetVariableField(ulong *A, uint len, ulong index, ulong x) {
+        ulong i = index / W;
         ulong j = index - i * W;
-        ulong mask = (j + len < W ? ~0lu << (j + len) : 0) 
+        ulong mask = (j + len < W ? ~0lu << (j + len) : 0)
                      | (W - j < W ? ~0lu >> (W - j) : 0);
         A[i] = (A[i] & mask) | x << j;
         if (j + len > W) {
-            mask = ((~0lu) << (len + j - W));  
+            mask = ((~0lu) << (len + j - W));
             A[i + 1] = (A[i + 1] & mask)| x >> (W - j);
-        } 
+        }
     }
-
 };
 
 #endif

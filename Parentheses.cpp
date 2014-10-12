@@ -64,8 +64,8 @@
 
     // creates a parentheses structure from a bitstring, which is shared
         // n is the total number of parentheses, opening + closing
-   static unsigned char FwdPos[256][W/2];
-   static unsigned char BwdPos[256][W/2];
+   static uchar FwdPos[256][W/2];
+   static uchar BwdPos[256][W/2];
    static char Excess[256];
    static bool tablesComputed = false;
 
@@ -92,15 +92,14 @@ Parentheses::Parentheses (ulong *string, ulong n, bool bwd, BitRank *br)
           this->bbtable = new Hash (pnear,sbits,1.8);
     }
      else sbtable = bbtable = 0;
-     filltables (bwd);
+     filltables(bwd);
      if (!tablesComputed) {
          tablesComputed = true;
-            for (i=0; i < 256; i++)  {
-                fcompchar((unsigned char)i, FwdPos[i], Excess+i); //printf("i = %d\t, FwdPos[i] = %c\t, Excess+i = %c\n", i,FwdPos[i],Excess+i);
-                bcompchar((unsigned char)i, BwdPos[i]);//printf("i = %d\t, BwdPos[i] = %c\t, Excess+i = %c\n", i,BwdPos[i],Excess+i);
+         for (i=0; i < 256; i++)  {
+                fcompchar((uchar)i, FwdPos[i], Excess+i); //printf("i = %d\t, FwdPos[i] = %c\t, Excess+i = %c\n", i,FwdPos[i],Excess+i);
+                bcompchar((uchar)i, BwdPos[i]);//printf("i = %d\t, BwdPos[i] = %c\t, Excess+i = %c\n", i,BwdPos[i],Excess+i);
             }
          }
-
    }
 
 // frees parentheses structure, including the bitstream
@@ -238,51 +237,52 @@ ulong Parentheses::filltables (ulong posparent, ulong posopen, bool bwd)
     return posclose;
 }*/
 
-void Parentheses::fcompchar (unsigned char x, unsigned char *pos, char *excess) {
+void Parentheses::fcompchar (uchar x, uchar *pos, char *excess) {
     int exc = 0;
-    unsigned i;
+    uint i;
     for (i = 0; i < W / 2; i++) {
       pos[i] = 0;
     }
     for (i = 0; i < 8; i++) {
-      if (x & 1) {// closing
-           exc--;
-              if ((exc < 0) && !pos[-exc-1]) {
-            pos[-exc-1] = i+1;
-          }
-         } else {
-          exc++;
-      }
-         x >>= 1;
-       }
-     *excess = exc;
+        if (x & 1) {// closing
+            exc--;
+            if ((exc < 0) && !pos[-exc-1]) {
+                pos[-exc-1] = i+1;
+            }
+        } else {
+            exc++;
+        }
+        x >>= 1;
+    }
+    *excess = exc;
 }
 
-void Parentheses::bcompchar (unsigned char x, unsigned char *pos)
-
-   { int exc = 0;
-     unsigned i;
-     for (i=0;i<W/2;i++) pos[i] = 0;
-     for (i=0;i<8;i++)
-     { if (x & 128) // opening, will be used on complemented masks
-          { exc++;
-        if ((exc > 0) && !pos[exc-1]) pos[exc-1] = i+1;
-          }
-       else exc--;
-       x <<= 1;
+void Parentheses::bcompchar(uchar x, uchar *pos) {
+    int exc = 0;
+    uint i;
+    for (i = 0; i < W / 2; i++) {
+        pos[i] = 0;
+    }
+    for (i = 0; i < 8; i++) {
+        if (x & 128) {// opening, will be used on complemented masks
+            exc++;
+            if ((exc > 0) && !pos[exc-1]) pos[exc-1] = i+1;
+        } else {
+           exc--;
+        }
+        x <<= 1;
      }
-   }
+}
 
-    // the position of the closing parenthesis corresponding to (opening)
-    // parenthesis at position i
+// the position of the closing parenthesis corresponding to (opening)
+// parenthesis at position i
 
-ulong Parentheses::findclose (ulong i)
-
-   { ulong bitW;
-     ulong len,res,minres,exc;
-     unsigned char W1;
-     ulong h;
-     ulong myexcess;
+ulong Parentheses::findclose (ulong i) {
+    ulong bitW;
+    ulong len,res,minres,exc;
+    uchar W1;
+    ulong h;
+    ulong myexcess;
 
      // Closing parenthesis for root
      if (i == 0)
@@ -303,8 +303,8 @@ ulong Parentheses::findclose (ulong i)
      minres = 0;
      myexcess = excess (i);
      res = bftable->searchHash (i,&h);
-     while (res)
-    { if (!minres || (res < minres))
+    while (res) {
+        if (!minres || (res < minres))
          if ((i+res+1 < n) && (excess(i+res+1) == myexcess))
         minres = res;
       res = bftable->nextHash (&h);
@@ -312,23 +312,21 @@ ulong Parentheses::findclose (ulong i)
      if (minres) return i+minres;
     // finally, it has to be a far pointer
      res = sftable->searchHash (i,&h);
-     while (res)
-    { if (!minres || (res < minres))
+     while (res) { if (!minres || (res < minres))
          if ((i+res+1 < n) && (excess(i+res+1) == myexcess))
             minres = res;
       res = sftable->nextHash (&h);
     }
      return i+minres; // there should be one if the sequence is balanced!
-   }
+}
 
-    // find enclosing parenthesis for an open parenthesis
-    // assumes that the parenthesis has an enclosing pair
+// find enclosing parenthesis for an open parenthesis
+// assumes that the parenthesis has an enclosing pair
 
-ulong Parentheses::findparent (ulong i)
-
-   { ulong bitW;
+ulong Parentheses::findparent (ulong i) {
+    ulong bitW;
      ulong len,res,minres,exc;
-     unsigned char W1;
+     uchar W1;
      ulong h;
      ulong myexcess;
 
@@ -347,48 +345,43 @@ ulong Parentheses::findparent (ulong i)
     // ok, it's not a small distance, try with hashing btable
      minres = 0;
      myexcess = excess (i) - 1;
-     res = bbtable->searchHash (i,&h);
+     res = bbtable->searchHash (i, &h);
      while (res)
     { if (!minres || (res < minres))
-         if ((i-res >= 0) && (excess(i-res) == myexcess))
+         if ((i-res >= 0) && (excess(i - res) == myexcess))
         minres = res;
       res = bbtable->nextHash (&h);
     }
      if (minres) return i-minres;
     // finally, it has to be a far pointer
-     res = sbtable->searchHash (i,&h);
+     res = sbtable->searchHash (i, &h);
      while (res)
     { if (!minres || (res < minres))
          if ((i-res >= 0) && (excess(i-res) == myexcess))
         minres = res;
-      res = sbtable->nextHash (&h);
+      res = sbtable->nextHash(&h);
     }
      return i-minres; // there should be one if the sequence is balanced!
    }
 
     // # open - # close at position i, not included
 
-ulong Parentheses::excess (ulong i)
-
-   { if (i == 0)
+ulong Parentheses::excess (ulong i) {
+    if (i == 0) {
         return 0;
-     return br->rank(i-1)*2 - i;
-   }
+    }
+    return br->rank(i - 1) * 2 - i;
+}
 
-        // open position of closest parentheses pair that contains the pair
-        // that opens at i, ~0 if no parent
-
-ulong Parentheses::enclose (ulong i)
-
-   { if (i == 0) return 0; // no parent!
+// open position of closest parentheses pair that contains the pair
+// that opens at i, ~0 if no parent
+ulong Parentheses::enclose (ulong i) {
+  if (i == 0) return 0; // no parent!
      if (excess(i) == 1)
         return 0;
      return findparent (i);
-   }
+}
 
-ulong Parentheses::isOpen (ulong i)
-
-   { return br->IsBitSet(i);
-   }
-
-
+ulong Parentheses::isOpen (ulong i) {
+    return br->IsBitSet(i);
+}

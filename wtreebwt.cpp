@@ -59,7 +59,6 @@ void DynFMI::recursiveIterateResetWaveletNode(WaveletNode *w){
     if (w->right) recursiveIterateResetWaveletNode(w->right);
 }
 
-
 bool DynFMI::iterateNext(){
     iterate++;
     return !(iterate > getSize());
@@ -78,7 +77,6 @@ uchar DynFMI::iterateGetSymbol(){
 
         walk->bittree->iterateNext();
 
-
         if (bit) { //bit = 1
             if (walk->right == 0) return walk->c1;
             walk=walk->right;
@@ -89,15 +87,11 @@ uchar DynFMI::iterateGetSymbol(){
 
 
     } // end of while
-
 }
-
 
 uchar* DynFMI::getBWT(){
     ulong n = root->bittree->getPositions();
-
     uchar *text = new uchar[n];
-
     bool data=true;
     // old slow version:
     //for (ulong i=1; i <= root->bittree->getPositions(); i++)
@@ -141,12 +135,12 @@ void DynFMI::deleteLeaves(WaveletNode *node){
 }
 
 void DynFMI::makeCodes(ulong code, int bits, WaveletNode *node){
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (node == node->left) {
         cout << "makeCodes: autsch" << endl;
         exit(0);
         }
-    #endif
+#endif
 
     if (node->left) {
         makeCodes(code | (0 << bits), bits+1, node->left);
@@ -169,7 +163,6 @@ void DynFMI::initEmptyDynFMI(uchar *text){
     leaves = (WaveletNode**) new WaveletNode*[256];
     for(int j=0; j<256; j++) leaves[j]=0;
 
-
     ulong i=0;
     while (text[i]!='\0') {
 
@@ -186,7 +179,6 @@ void DynFMI::initEmptyDynFMI(uchar *text){
 
     // Veli's approach:
     priority_queue< WaveletNode*, vector<WaveletNode*>, greater<WaveletNode*> > q;
-
 
     for(int j=0; j<256; j++){
         if (leaves[j]!=0) {
@@ -208,10 +200,8 @@ void DynFMI::initEmptyDynFMI(uchar *text){
         q.push(  new WaveletNode(left, right) );
     }
 
-
     root = q.top();
     q.pop();
-
 
     makeCodes(0,0, root);    // writes codes and codelengths
 
@@ -229,24 +219,21 @@ void DynFMI::initEmptyDynFMI(uchar *text){
         }
     }
 
-
     deleteLeaves(root);
 
     appendBVTrees(root);
 
     // array C needed for backwards search
     for(int j=0; j<256+256; j++) C[j] = 0;
-
 }
 
-
 void DynFMI::insert(uchar c, ulong i){
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (leaves[c]==0) {
         cerr << "error: Symbol \"" << c << "\" (" << (int)c << ") is not in the code table!" << endl;;
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
     ulong level = 0;
     ulong code = codes[c];
@@ -270,13 +257,12 @@ void DynFMI::insert(uchar c, ulong i){
         level++;
     } // end of while
 
-    int j = 256+c;
-    while(j>1) {
+    int j = 256 + c;
+    while(j > 1) {
         C[j]++;
         j=binaryTree_parent(j);
-        }
+    }
     C[j]++;
-
 }
 
 
@@ -296,7 +282,6 @@ uchar DynFMI::operator[](ulong i){
             if (walk->left == 0) return walk->c0;
             walk=walk->left;
         }
-
 
     } // end of while
     cout << endl;
@@ -351,26 +336,25 @@ ulong DynFMI::select(uchar c, ulong i){
     return i;
 }
 
-
 // size must include endmarker!
 void DynFMI::addText(uchar *str, ulong n){
     ulong i=1;
 
-    insert(str[n-2],i); // insert second last character, corresponds to suffix of length 1
+    insert(str[n - 2], i); // insert second last character, corresponds to suffix of length 1
 
-    for (ulong t=n-2; t > 0; t--) {
-        i= 1+getNumberOfSymbolsSmallerThan(str[t]) + rank(str[t],i);
+    for (ulong t = n - 2; t > 0; t--) {
+        i= 1+getNumberOfSymbolsSmallerThan(str[t]) + rank(str[t], i);
         insert(str[t-1],i);
     }
 
-    i= 1+ getNumberOfSymbolsSmallerThan(str[0]) + rank(str[0],i);
+    i = 1 + getNumberOfSymbolsSmallerThan(str[0]) + rank(str[0], i);
     insert(str[n-1],i);
 }
 
 ulong DynFMI::getNumberOfSymbolsSmallerThan(uchar c){
-    int j = 256+c;
-    ulong r=0;
-    while(j>1) {
+    int j = 256 + c;
+    ulong r = 0;
+    while(j > 1) {
         if (binaryTree_isRightChild(j))
             r += C[binaryTree_left(binaryTree_parent(j))];
 
@@ -383,7 +367,7 @@ void DynFMI::printDynFMIContent(ostream& stream){
     uchar c;
     for (ulong i=1; i<=getSize(); i++)
     {
-        c =(*this)[i];
+        c = (*this)[i];
         if (c==0) c= '#';
         stream << c;
     }

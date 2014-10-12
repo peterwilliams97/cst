@@ -22,12 +22,14 @@
 
 // CRMQ uses three different sample rates:
 //  - sampleRate is the same as in Sadakane's paper (log^3 n).
-//  - subSampleRate is the same as in Sadakane's paper but the bigger size (E.g. 10 * log n) is compensated with sequential calls to look-up tables.
+//  - subSampleRate is the same as in Sadakane's paper but the bigger size (E.g. 10 * log n)
+//          is compensated with sequential calls to look-up tables.
 //  - blockSampleRate is the sample rate used for Four-Russians technique (log n / 2).
-// The sampleRate value affects the size of M[i, k] and M_j[i, k] tables. The subSampleRate affects the size of M_j[i, k] table.
+// The sampleRate value affects the size of M[i, k] and M_j[i, k] tables. The subSampleRate
+//      affects the size of M_j[i, k] table.
 // Value of blockSampleRate affects only the look-up tables.
 
-CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSampleRate, unsigned blockSampleRate)
+CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, uint sampleRate, uint subSampleRate, uint blockSampleRate)
 {
     this->n = n;
     this->P = P;
@@ -39,7 +41,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
     this->blockSampleRate = blockSampleRate;
 
     #ifdef DEBUG_CRMQ
-//         trmq = new TRMQ(br, n);
+//      trmq = new TRMQ(br, n);
         printf("n = %lu, sampleRate = %d, subSampleRate = %d, blockSampleRate = %d\n", n, sampleRate, subSampleRate, blockSampleRate);
     #endif
 
@@ -74,7 +76,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
             }
 
     // Calculate subblocks
-    for (unsigned k = 1; k < widthSubM; k++)
+    for (uint k = 1; k < widthSubM; k++)
         for (ulong j = 0; j < n/sampleRate + 1; j++)
             for (ulong i = 0; i < sampleRate/subSampleRate; i++)
 //                if (i + (1 << k) - 1 < sampleRate/subSampleRate && j * sampleRate + (i + (1 << (k - 1))) * subSampleRate + (1 << k) - 1 < n)
@@ -107,7 +109,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
     }
 
     // Calculate blocks
-    for (unsigned k = 1; k < widthM; k++)
+    for (uint k = 1; k < widthM; k++)
         for (ulong i = 0; i < n/sampleRate + 1; i++)
             if (i + (1 << k) - 1 < n/sampleRate + 1)
             {
@@ -125,7 +127,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
         for (ulong i = 0; i < n; i ++)
         {
             if (i % sampleRate == 0)
-                for (unsigned k = 0; k < widthM; k++)
+                for (uint k = 0; k < widthM; k++)
                     if (i + sampleRate * (1 << k) - 1 < n || k == 0)
                     {
                         printf("Calc M(%lu, %d)  = L[%lu, %lu] = %d\n", i / sampleRate, k, i, i + sampleRate * (1 << k) - 1, trmq->lookup(i, i + sampleRate * (1 << k) - 1));
@@ -137,7 +139,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
                     }
 
             if (i % subSampleRate == 0)
-                for (unsigned k = 0; k < widthSubM; k++)
+                for (uint k = 0; k < widthSubM; k++)
                     if ((i % sampleRate) + subSampleRate * (1 << k) - 1 < sampleRate)
                     {
                         printf("Calc M_%lu(%lu, %d)  = L[%lu, %lu] = %lu\n", i / sampleRate, (i % sampleRate) / subSampleRate, k, i, i + subSampleRate * (1 << k) - 1, trmq->lookup(i, i + subSampleRate * (1 << k) - 1) - (i - i % sampleRate));
@@ -153,7 +155,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
         printf("Result:\n");
         for (ulong j = 0; j < n/sampleRate + 1; j++)
             for (ulong i = 0; i < sampleRate/subSampleRate; i++)
-                for (unsigned k = 0; k < widthSubM; k++)
+                for (uint k = 0; k < widthSubM; k++)
                     if (i + (1 << k) - 1 < sampleRate/subSampleRate && n > j * sampleRate + i * subSampleRate + (1 << k) - 1)
                         printf("M_%lu(%lu, %d) = %lu\n", j, i, k, GetSubM(j, i, k));
         delete trmq;
@@ -178,7 +180,7 @@ ulong CRMQ::lookup(ulong v, ulong w) const
         return v;
     if (v > w)
     {
-        unsigned temp = v;
+        uint temp = v;
         v = w;
         w = temp;
     }
@@ -195,7 +197,7 @@ ulong CRMQ::lookup(ulong v, ulong w) const
     // Find minimum in blocks between x and y
     if (y - x > 1)
     {
-        unsigned k = Tools::FloorLog2(y - x - 1);
+        uint k = Tools::FloorLog2(y - x - 1);
         ulong valueX = GetValue(M[(x + 1) * widthM + k]);
         ulong valueY = GetValue(M[(y - (1 << k)) * widthM + k]);
         #ifdef DEBUG_CRMQ
@@ -268,7 +270,7 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
 
     if (v > w)
     {
-        unsigned temp = v;
+        uint temp = v;
         v = w;
         w = temp;
     }
@@ -292,7 +294,7 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
     // Find minimum in subblocks between x and y
     if (y - x > 1)
     {
-        unsigned k = Tools::FloorLog2(y - x - 1);
+        uint k = Tools::FloorLog2(y - x - 1);
         // Get indexes inside subblocks
         ulong indexX = GetSubblockIndex(block, GetSubM(block, x + 1, k));
         ulong indexY = GetSubblockIndex(block, GetSubM(block, y - (1 << k), k));

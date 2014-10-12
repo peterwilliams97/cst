@@ -18,19 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
 #include "bittree.h"
-
 
 using namespace std;
 
 //std::ostream& operator<<(std::ostream& os, node& n) { ... }
 
-  BVTree::~BVTree(){
-    delete tempbit;
-  }
-
-
+BVTree::~BVTree(){
+    delete _tempbit;
+}
 
 /**
 BVTree::BVTree(char *readfile){
@@ -42,10 +38,8 @@ BVTree::BVTree(char *readfile){
       exit(EXIT_FAILURE);
   }
 
-
-  tempnil = (BVNode*) ((RBTree*) this)->nil;
-  tempbit = new bitset<2*logn>;
-
+  _tempnil = (BVNode*) ((RBTree*) this)->nil;
+  _tempbit = new bitset<2*logn>;
 
   char c;
   bitset<8> bs;
@@ -61,43 +55,44 @@ BVTree::BVTree(char *readfile){
 }
 **/
 
-
 void BVTree::iterateReset(){
-      iterate=1;
-    iterateLocal=0;
-    iterateNode = (BVNode*) treeMinimum(root);
-    iterateRank = ((*iterateNode->block)[0])?1:0;
+    _iterate = 1;
+    _iterateLocal = 0;
+    _iterateNode = (BVNode *)treeMinimum(root);
+    _iterateRank = ((*_iterateNode->block)[0]) ? 1 : 0;
 }
 
 bool BVTree::iterateGetBit(){
-    return ((*iterateNode->block)[iterateLocal]);
+    return ((*_iterateNode->block)[_iterateLocal]);
 }
 
 ulong BVTree::iterateGetRank(bool bit){
-    if (bit) return iterateRank;
-    else return (iterate - iterateRank);
+    if (bit)
+        return _iterateRank;
+    else
+        return (_iterate - _iterateRank);
 }
 
 bool BVTree::iterateNext(){
-    iterate++;
+    _iterate++;
 
-    if (iterate > getPositions()) return false;
+    if (_iterate > getPositions()) return false;
 
 
-    if (iterateLocal < iterateNode->myPositions-1) {
-        iterateLocal++;
+    if (_iterateLocal < _iterateNode->myPositions-1) {
+        _iterateLocal++;
     } else {
         // jump to next leaf;
-        iterateNode = (BVNode*) treeSuccessor(iterateNode);
+        _iterateNode = (BVNode *)treeSuccessor(_iterateNode);
         #ifndef NDEBUG
-        if (iterateNode==getNil()) {
-            cout << "iterateNode==getNil()" << endl;
+        if (_iterateNode == getNil()) {
+            cout << "_iterateNode==getNil()" << endl;
             return false;
         }
         #endif
-        iterateLocal=0;
+        _iterateLocal=0;
     }
-    if  ((*iterateNode->block)[iterateLocal]) iterateRank++;
+    if  ((*_iterateNode->block)[_iterateLocal]) _iterateRank++;
 
     return true;
 }
@@ -114,11 +109,9 @@ ulong BVTree::getRank(){
     return getRoot()->subTreeRank;
 }
 
-
 void BVTree::printNode(BVNode *n){
     int commas=(2*logn)/10;
     int commashift = -1;
-
 
     cout << "address: " << n << endl;
 
@@ -140,7 +133,6 @@ void BVTree::printNode(BVNode *n){
                 cerr << "X) printNode: array wrong index" << endl;
                 exit(0);
             }
-
         }
 
         cout << "size=" << size << endl;
@@ -157,8 +149,7 @@ void BVTree::printNode(BVNode *n){
 
         commashift = 0;
         for (int i=10; i < 2*logn; i++){
-            if (i%10 == 0)
-            {
+            if (i%10 == 0) {
                 if (i+commashift >= size-2) {
                     cerr << "B) printNode: array wrong index" << endl;
                     exit(0);
@@ -170,15 +161,14 @@ void BVTree::printNode(BVNode *n){
 
         }
 
-        myblock[size - 1]='\0';
+        myblock[size - 1] = '\0';
 
         cout << "block: \"" << myblock << "\"" << endl;
         delete myblock;
-
     }
-    else
+    else {
         cout << "block: none" << endl;
-
+    }
 
     cout << "myPositions: " << n->myPositions << endl;
     cout << "myRank: " << n->myRank << endl;
@@ -188,9 +178,7 @@ void BVTree::printNode(BVNode *n){
     cout << "parent: " << n->getParent() << endl;
     cout << "left: " << n->getLeft() << endl;
     cout << "right:" << n->getRight() << endl << endl;
-
 }
-
 
 int BVTree::getTreeMaxDepth(){
     return getNodeMaxDepth(root);
@@ -199,7 +187,6 @@ int BVTree::getTreeMaxDepth(){
 int BVTree::getTreeMinDepth(){
     return getNodeMinDepth(root);
 }
-
 
 void BVTree::updateCounters(BVNode *n){
 
@@ -222,7 +209,6 @@ void BVTree::updateCounters(BVNode *n){
 
     n->subTreeRank     =lR + rR + n->myRank;
     n->subTreePositions=lP + rP + n->myPositions;
-
 }
 
 ulong BVTree::getLocalRank(BVNode* n, ulong position){
@@ -234,8 +220,8 @@ ulong BVTree::getLocalRank(BVNode* n, ulong position){
     }
     #endif
 
-    *tempbit =*(n->block)<<((2*logn)-position);
-    return tempbit->count();
+    *_tempbit =*(n->block)<<((2*logn)-position);
+    return _tempbit->count();
 
     // old version:
     //rank = 0;
@@ -276,11 +262,10 @@ ulong BVTree::getLocalSelect0(BVNode* n, ulong query){
     return i;
 }
 
-
 void BVTree::printNode(ulong i){
     BVNode* x = getRoot();
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (x == getNil()) {
         cerr << "error: printNode(int i): root=NULL.\n";
         exit(EXIT_FAILURE);
@@ -291,31 +276,29 @@ void BVTree::printNode(ulong i){
         cerr << "error: printNode(int i): invalid position in block.\n";
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
     ulong lP=0;
     bool search = true;
     //find the corresponding block:
     while (search)
     {
-
-        if (x->getLeft() != getNil()) lP = x->getLeft()->subTreePositions;
-            else lP = 0;
-
-        if (lP >= i)
-        {
-            x=x->getLeft();
+        if (x->getLeft() != getNil()) {
+            lP = x->getLeft()->subTreePositions;
+        } else {
+            lP = 0;
         }
-        else if (lP+x->myPositions >= i){
-            i-=lP;
+
+        if (lP >= i) {
+            x = x->getLeft();
+        } else if (lP+x->myPositions >= i){
+            i -= lP;
             search = false;
-        }
-        else{
-            i-=(lP+x->myPositions);
-            x=x->getRight();
+        } else {
+            i -= lP + x->myPositions;
+            x = x->getRight();
         }
     }
-
 
     cout << "i=" << i << endl;
     printNode(x);
@@ -330,7 +313,6 @@ bool BVTree::operator[](ulong i){
     //find the corresponding block:
     while (search)
     {
-
         if (x->getLeft() != getNil()) {
             lsP = x->getLeft()->subTreePositions;
         } else {
@@ -338,7 +320,7 @@ bool BVTree::operator[](ulong i){
         }
         if (lsP >= i)
         {
-            #ifndef NDEBUG
+#ifndef NDEBUG
             if (x->getLeft()==getNil()) {
                 cout << "lsP: " << lsP << endl;
                 printNode(x);
@@ -346,16 +328,16 @@ bool BVTree::operator[](ulong i){
                 checkTree();
                 exit(EXIT_FAILURE);
             }
-            #endif
+#endif
             x=x->getLeft();
         }
         else if (lsP+x->myPositions >= i){
             i-=lsP;
             search = false;
         }
-        else{
+        else {
             i-=(lsP+x->myPositions);
-            #ifndef NDEBUG
+#ifndef NDEBUG
             if (x->getRight()==getNil()) {
                 cout << "i: " << i << endl;
                 cout << "lsP: " << lsP << endl;
@@ -365,17 +347,16 @@ bool BVTree::operator[](ulong i){
                 checkTree();
                 exit(EXIT_FAILURE);
                 }
-            #endif
-            x=x->getRight();
+#endif
+            x = x->getRight();
         }
     }
-
     return (*x->block)[i-1];
 }
 
 
 ulong BVTree::rank1(ulong i){
-    BVNode* x = getRoot();
+    BVNode *x = getRoot();
 
     if (i == this->getPositions() + 1) i--;
     #ifndef NDEBUG
@@ -386,10 +367,9 @@ ulong BVTree::rank1(ulong i){
     }
     #endif
 
-
-    ulong lsP=0;
-    ulong lsR=0;
-    ulong rank=0;
+    ulong lsP = 0;
+    ulong lsR = 0;
+    ulong rank = 0;
     bool search = true;
     //find the corresponding block:
     while (search)
@@ -467,9 +447,7 @@ ulong BVTree::select1(ulong i){
             x=x->getRight();
         }
     }
-    select+=getLocalSelect1(x, i);
-
-
+    select += getLocalSelect1(x, i);
 
     return select;
 }
@@ -478,13 +456,12 @@ ulong BVTree::select0(ulong i){
     BVNode* x = getRoot();
     ulong select=0;
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (i > (x->subTreePositions - x->subTreeRank) || i < 0) {
         cerr << "error: select1: invalid position in bittree: " << i << endl;
         exit(EXIT_FAILURE);
     }
-    #endif
-
+#endif
 
     ulong lsP=0;
     ulong lsR=0;
@@ -548,9 +525,6 @@ void BVTree::deleteNode(BVNode *n){
     delete n;
 }
 
-
-
-
 // TODO improve by returning bitvalue
 
 void BVTree::deleteBit(ulong i){
@@ -601,7 +575,7 @@ void BVTree::deleteBit(ulong i){
             rank+=lsR;
             search = false;
         }
-        else{
+        else {
             i-=(lsP+x->myPositions);
             rank+=(lsR+x->myRank); // for speedup!
             #ifndef NDEBUG
@@ -611,27 +585,24 @@ void BVTree::deleteBit(ulong i){
         }
     }
 
-
-
-        // now delete the bit from the block x:
+    // now delete the bit from the block x:
     bit =(*x->block)[i-1];
 
     // store bit and rank information for speedup
-    lastBitDeleted=bit;
-    rank+=getLocalRank(x, i);
-    lastRank=(bit?rank:old_i-rank);
+    _lastBitDeleted = bit;
+    rank += getLocalRank(x, i);
+    _lastRank = bit ? rank : old_i-rank;
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (i > x->myPositions) {
         cerr << "error: B, position " << i <<" in block not available, only " << x->myPositions <<" positions.\n"; //shouldn't happen
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
+
     bitset<2*logn> mask;
 
-
-    if ( i > 1 )
-    {
+    if (i > 1) {
         mask.set();
         mask>>=(2*logn - i + 1);
         mask &= *(x->block);
@@ -645,7 +616,6 @@ void BVTree::deleteBit(ulong i){
     if (bit) x->myRank--;
 
     updateCountersOnPathToRoot(x);
-
 
     if (x->myPositions == 0){ // if merging was not possible:
 
@@ -666,8 +636,8 @@ void BVTree::deleteBit(ulong i){
                 for (ulong i=0; i< sibling->myPositions; i++){
                     (*x->block)[x->myPositions+i] = (*sibling->block)[i];
                 }
-                x->myPositions+=sibling->myPositions;
-                x->myRank+=sibling->myRank;
+                x->myPositions += sibling->myPositions;
+                x->myRank += sibling->myRank;
                 updateCountersOnPathToRoot(x);
                 rbDelete(sibling, callUpdateCountersOnPathToRoot);
                 delete sibling;
@@ -696,9 +666,6 @@ void BVTree::deleteBit(ulong i){
 
         } // end else if
     } // end else if
-
-
-
 }
 
 void BVTree::writeTree(char *writefile){
@@ -710,7 +677,6 @@ void BVTree::writeTree(char *writefile){
     }
     writeTree(write);
 }
-
 
 ulong* BVTree::getBits(){
     BVNode *n = getRoot();
@@ -807,7 +773,6 @@ void BVTree::writeTree(ostream& stream){
     }
 }
 
-
 void BVTree::appendBit(bool bit){
     ulong pos = 1;
     if (root != getNil()) pos= getRoot()->subTreePositions + 1;
@@ -844,8 +809,7 @@ void BVTree::insertBit(bool bit, ulong i){
     }
     #endif
 
-    ulong lsP=0;
-
+    ulong lsP = 0;
 
     while (true)
     {
@@ -892,13 +856,13 @@ void BVTree::insertBit(bool bit, ulong i){
     (x->myPositions)++;      //update p (leaf)
     if (bit) (x->myRank)++;  //update r (leaf)
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if ((int)x->myPositions > 2*logn)
     {
         cerr << "error: positions in block already too many.\n"; //shouldn't happen
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
     // split and rotate, if necessary
     if ((int)x->myPositions == 2*logn)
@@ -942,8 +906,6 @@ void BVTree::insertBit(bool bit, ulong i){
         rbInsertFixup(newNode, callUpdateCounters);
 
     } // end if
-
-
 }
 
 void BVTree::checkSubTree(BVNode *n){
@@ -959,7 +921,6 @@ void BVTree::checkSubTree(BVNode *n){
             cout << "au"<< endl;
             exit(1);
         }
-
     }
 
     if (n->getRight()!=getNil()) {
@@ -991,9 +952,9 @@ void BVTree::checkSubTree(BVNode *n){
 }
 
 void callUpdateCounters(RBNode *n, RBTree *T){
-    ((BVTree*)T)->updateCounters((BVNode*) n);
+    ((BVTree *)T)->updateCounters((BVNode *)n);
 }
 
 void callUpdateCountersOnPathToRoot(RBNode *n, RBTree *T){
-    ((BVTree*)T)->updateCountersOnPathToRoot((BVNode*) n);
+    ((BVTree *)T)->updateCountersOnPathToRoot((BVNode *)n);
 }

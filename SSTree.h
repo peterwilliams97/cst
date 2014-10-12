@@ -41,57 +41,55 @@
 // Requires HeapProfiler class:
 //#define SSTREE_HEAPPROFILE
 
-
 /**
  * Compressed suffix tree class
  *
- * Suffix tree is represented using several compressed       
- * data structures. Most important to understant the usage       
- * of the Balanced Parantheses (BP) representation of the tree   
- * hierarchy: the tree is traversed prefix order printing "("    
- * when a node is visited first time and printing ")" when       
- * a node is visited last time. E.g. "((()())())" is a tree with 
- * root having two children, its left child having two leaves,   
- * and its right child being a leaf.                             
- *                                                               
- * A node in the tree is represented by the index of the         
+ * Suffix tree is represented using several compressed
+ * data structures. Most important to understant the usage
+ * of the Balanced Parantheses (BP) representation of the tree
+ * hierarchy: the tree is traversed prefix order printing "("
+ * when a node is visited first time and printing ")" when
+ * a node is visited last time. E.g. "((()())())" is a tree with
+ * root having two children, its left child having two leaves,
+ * and its right child being a leaf.
+ *
+ * A node in the tree is represented by the index of the
  * corresponding "(" in the balanced parentheses representation.
  *
  * References:
  *
- * Niko Välimäki, Wolfgang Gerlach, Kashyap Dixit, and Veli Mäkinen. 
- * Engineering a Compressed Suffix Tree Implementation, Published at 
+ * Niko Välimäki, Wolfgang Gerlach, Kashyap Dixit, and Veli Mäkinen.
+ * Engineering a Compressed Suffix Tree Implementation, Published at
  * 6th Workshop on Experimental Algorithms (WEA 2007), June 6-8, Italy.
  *
- * K. Sadakane. Compressed suffix trees with full functionality. Theory of 
- * Computing Systems, 2006. To appear, preliminary version available at 
+ * K. Sadakane. Compressed suffix trees with full functionality. Theory of
+ * Computing Systems, 2006. To appear, preliminary version available at
  * http://tcslab.csce.kyushu-u.ac.jp/~sada/papers/cst.ps
  */
 class SSTree : public SuffixTree
 {
 private:
-    ulong n;
-    CSA *sa;    
-    CHgtArray *hgt;
-    CRMQ *rmq;
-    ulong *P;
-    ReplacePattern *rpLeaf, *rpSibling;
-    BitRank *br, *brLeaf, *brSibling;
-    Parentheses *Pr;
-    
+    ulong _n;
+    CSA *_sa;
+    CHgtArray *_hgt;
+    CRMQ *_rmq;
+    ulong *_P;
+    ReplacePattern *_rpLeaf, *_rpSibling;
+    BitRank *_br, *_brLeaf, *_brSibling;
+    Parentheses *_Pr;
+
 public:
     /**
      * IO action for constructor SSTree(), filename given as the last parameter.
      * Defaults to no operation.
      */
-    enum io_action
-    {
+    enum io_action {
         nop,       // No operation
         load_from, // Load from file
         save_to    // Save to file
     };
 
-    SSTree(uchar *, ulong, bool = false, unsigned = 0, io_action = nop, const char * = 0);
+    SSTree(uchar *, ulong, bool=false, uint=0, io_action=nop, const char * = 0);
     ~SSTree();
     ulong root();
     bool isleaf(ulong) ;

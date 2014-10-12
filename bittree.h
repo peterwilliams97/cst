@@ -42,7 +42,7 @@
 #include "Tools.h"
 
 #ifndef uchar
-#define uchar unsigned char
+#define uchar uchar
 #endif
 #ifndef ulong
 #define ulong unsigned long
@@ -60,99 +60,98 @@ class BVTree : public RBTree{
 public:
 
   //Constructors
-  BVTree(){
-      tempnil = (BVNode*) ((RBTree*) this)->nil;
-      tempbit = new bitset<2*logn>;
-  }
+    BVTree() {
+        _tempnil = (BVNode *) ((RBTree *)this)->nil;
+        _tempbit = new bitset<2*logn>;
+    }
 
-  //Destructor:
-  ~BVTree();
+    //Destructor:
+    ~BVTree();
 
-  bool operator[](ulong);
+    bool operator[](ulong);
 
   // inserts bit at position i, countings begins with 1:
-  void appendBit(bool bit);
-  void insertBit(bool bit, ulong i);
-  void deleteBit(ulong i);
+    void appendBit(bool bit);
+    void insertBit(bool bit, ulong i);
+    void deleteBit(ulong i);
 
-  ulong rank0(ulong i);
-  ulong rank1(ulong i);
-  ulong rank(bool b, ulong i){return b?rank1(i):rank0(i);}
+    ulong rank0(ulong i);
+    ulong rank1(ulong i);
+    ulong rank(bool b, ulong i){return b?rank1(i):rank0(i);}
 
-  ulong select0(ulong i);
-  ulong select1(ulong i);
-  ulong select(bool b, ulong i){return b?select1(i):select0(i);}
+    ulong select0(ulong i);
+    ulong select1(ulong i);
+
+    ulong select(bool b, ulong i){return b?select1(i):select0(i);}
 
     void setRoot(BVNode* n){
-        ((RBTree*) this)->root=(RBNode*)n;
+        ((RBTree *)this)->root=(RBNode *)n;
     }
 
     BVNode* getRoot(){
         return ((BVNode*) ((RBTree*) this)->root);
     }
 
-    void setNil(BVNode* n){
-        tempnil = n;
-        ((RBTree*) this)->nil=(RBNode*)n;
+    void setNil(BVNode *n){
+        _tempnil = n;
+        ((RBTree *) this)->nil=(RBNode *)n;
     }
 
     BVNode* getNil(){
-        return tempnil;
-
+        return _tempnil;
     }
 
-  // write bits back into a stream:
-  ulong* getBits();
-  void writeTree(char *writefile);
-  void writeTree(std::ostream& stream); //e.g. stream = cout
+    // write bits back into a stream:
+    ulong* getBits();
+    void writeTree(char *writefile);
+    void writeTree(std::ostream& stream); //e.g. stream = cout
 
-  int getTreeMaxDepth();
-  int getTreeMinDepth();
-  ulong getPositions();
-  ulong getRank();
+    int getTreeMaxDepth();
+    int getTreeMinDepth();
+    ulong getPositions();
+    ulong getRank();
 
-  void iterateReset();
-  bool iterateGetBit();
-  bool iterateNext();
-  ulong iterateGetRank(bool bit);
+    void iterateReset();
+    bool iterateGetBit();
+    bool iterateNext();
+    ulong iterateGetRank(bool bit);
 
-  bool getLastBitDeleted(){return lastBitDeleted;}
-  ulong getLastRank(){return lastRank;}
+    bool getLastBitDeleted() {return _lastBitDeleted;}
+    ulong getLastRank() {return _lastRank;}
 
-  void checkSubTree(BVNode *n);
+    void checkSubTree(BVNode *n);
 
-  void updateCounters(BVNode *n);
-  void updateCountersOnPathToRoot(BVNode *walk);
+    void updateCounters(BVNode *n);
+    void updateCountersOnPathToRoot(BVNode *walk);
 
-  //debug:
-  void printNode(ulong i);
+    //debug:
+    void printNode(ulong i);
 
 protected:
 
-  ulong iterate;
-  ulong iterateLocal;
-  ulong iterateRank;
+    ulong _iterate;
+    ulong _iterateLocal;
+    ulong _iterateRank;
 
-  BVNode *iterateNode;
+    BVNode *_iterateNode;
 
-  BVNode *tempnil;
+    BVNode *_tempnil;
 
-  bool lastBitDeleted;
-  ulong lastRank;
+    bool _lastBitDeleted;
+    ulong _lastRank;
 
+    bitset<2*logn> *_tempbit;
 
-  bitset<2*logn> *tempbit;
+    // content of BVNode, for debugging:
+    void printNode(BVNode *n);
 
-  // content of BVNode, for debugging:
-  void printNode(BVNode *n);
+    // other operations:
+    ulong getLocalRank(BVNode *n, ulong position);
+    ulong getLocalSelect0(BVNode *n, ulong query);
+    ulong getLocalSelect1(BVNode *n, ulong query);
 
-  // other operations:
-  ulong getLocalRank(BVNode* n, ulong position);
-  ulong getLocalSelect0(BVNode* n, ulong query);
-  ulong getLocalSelect1(BVNode* n, ulong query);
-
-  void deleteNode(BVNode *n);
-  void deleteLeaf(BVNode *leaf);
+    void deleteNode(BVNode *n);
+    void deleteLeaf(BVNode *leaf);
 };
 
 class BVNode : public RBNode

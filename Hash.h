@@ -40,16 +40,16 @@ uint nextHash (hash H, handle *h);
 class Hash
 {
 private:
-    ulong size;
-    unsigned bits;
-    ulong* table;
+    ulong _size;
+    uint _bits;
+    ulong *_table;
 
 public:
-    Hash (ulong n, unsigned vbits, double factor);
+    Hash (ulong n, uint vbits, double factor);
     ~Hash();
     void insertHash(ulong, ulong);
-    unsigned searchHash(ulong key, ulong *h);
-    unsigned nextHash(ulong *h);
+    uint searchHash(ulong key, ulong *h);
+    uint nextHash(ulong *h);
 };
 
 #endif

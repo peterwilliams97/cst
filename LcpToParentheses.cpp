@@ -24,8 +24,8 @@
 ////////////////////////////////////////////////////////////////////////////
 // Class LcpToParentheses::DeltaArray
 LcpToParentheses::DeltaArray::DeltaArray(ulong size)
-{    
-    // pathological cases size should be 7*size 
+{
+    // pathological cases size should be 7*size
     // this is taken into account when startPos gets too small:
     // the memory size is doubled
     this->size = size / ((ulong)log2(size) * (ulong)log2(size));
@@ -50,12 +50,12 @@ void LcpToParentheses::DeltaArray::Add(ulong value)
        ulong *B;
        B = A;
        A = new ulong[size/W + 1 + size/W +1];
-       for (ulong i=0; i <= size/W; i++)
-          A[size/W+i+1]=B[i];
-       delete [] B;
-       startPos = (size/W+1)*W+startPos;
-       size = (size/W+1)*W+size;    
-    }       
+       for (ulong i=0; i <= size / W; i++)
+          A[size / W + i + 1] = B[i];
+       delete[] B;
+       startPos = (size / W + 1) * W + startPos;
+       size = (size / W + 1) * W + size;
+    }
     startPos -= l;
     Tools::SetVariableField(A, l, startPos, value);
     startPos -= m;
@@ -63,11 +63,10 @@ void LcpToParentheses::DeltaArray::Add(ulong value)
     startPos -= m + 1;
     Tools::SetVariableField(A, m + 1, startPos, (1 << m) - 1);
 }
-    
+
 void LcpToParentheses::DeltaArray::Remove(ulong n)
 {
-    for (ulong i = 0; i < n; i++)
-    {
+    for (ulong i = 0; i < n; i++) {
         ulong k = 0;
         while (Tools::GetVariableField(A, 1, startPos + k))
             k++;
@@ -82,13 +81,12 @@ ulong LcpToParentheses::DeltaArray::Sum(ulong n, ulong &index)
 {
     ulong sum = 0;
     index = startPos; // Reset index parameter
-    
-    for (ulong i = 0; i < n; i++)
-    {
+
+    for (ulong i = 0; i < n; i++) {
         ulong k = 0;
-        while (Tools::GetVariableField(A,1,index+k)) 
+        while (Tools::GetVariableField(A,1,index+k))
             k++;
-        index += k + 1;   
+        index += k + 1;
         ulong j = Tools::GetVariableField(A, k, index);
         index += k;
         sum += Tools::GetVariableField(A, j, index);
@@ -97,14 +95,14 @@ ulong LcpToParentheses::DeltaArray::Sum(ulong n, ulong &index)
     return sum;
 }
 
-// Iterate through the array with the index parameter: 
+// Iterate through the array with the index parameter:
 // Returns the value of the given index (and the index of the next value)
 ulong LcpToParentheses::DeltaArray::GetNext(ulong &index)
 {
     ulong k = 0;
-    while (Tools::GetVariableField(A,1,index+k)) 
+    while (Tools::GetVariableField(A,1,index+k))
         k++;
-    index += k + 1;   
+    index += k + 1;
     ulong j = Tools::GetVariableField(A, k, index);
     index += k;
     ulong sum = Tools::GetVariableField(A, j, index);
@@ -132,14 +130,14 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
     P->appendBit(true);
     P->appendBit(true);
     P->appendBit(false);
-    
+
     // Init values and arrays
     ulong p = 1;
     DeltaArray *D = new DeltaArray(n);
     D->Add(1);
     DeltaArray *E = new DeltaArray(n);
     E->Add(n);
-    
+
     // Add rest of the leafs
     for (ulong i = 1; i < n; i ++)
     {
@@ -147,7 +145,7 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
             printf("p = %lu, i = %lu\n", p, i);
         #endif
         ulong lcp = hgt->GetPos(i - 1);
-        
+
         // Find the number of nodes to skip
         ulong j = 1;
         sumValue = E->Sum(j, sumIndex); // Passing sumIndex by reference
@@ -158,16 +156,16 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
         }
 
         ulong splitLcp = n - sumValue;
-        
+
         #ifdef LCPTOPARENTHESES_DEBUG
             printf("j = %lu\n", j);
             printf("Append %lu closing parentheses\n", j - 1);
         #endif
-        
+
         // Append j - 1 closing parentheses
         for (ulong k = 0; k < j - 1; k ++)
             P->appendBit(false);
-    
+
         if (splitLcp < lcp)
         {
             // Get split node's index
@@ -181,13 +179,13 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
                 printf("Removing %lu from D\n", j - 1);
                 printf("Adding %lu to D\n", p + j + 2 - r);
             #endif
-            
+
             P->insertBit(true, r + 1);
-            
+
             E->Remove(j);
             E->Add(lcp - splitLcp);
             E->Add(n - lcp);
-            
+
             D->Remove(j - 1);
             D->Add(p + j + 2 - r);
             p++;
@@ -203,14 +201,14 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
                 printf("Removing %lu from D\n", j);
                 printf("Adding %lu to D\n", p + j + 1 - r);
             #endif
-                
+
             E->Remove(j);
             E->Add(n - lcp);
 
             D->Remove(j);
             D->Add(p + j + 1 - r);
         }
-                
+
         #ifdef LCPTOPARENTHESES_DEBUG
             printf("Append ()\n");
         #endif
@@ -218,7 +216,7 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
         P->appendBit(false);
         p += 2 + j - 1;
     }
-    
+
     // Find the number of nodes to close
     ulong j = 1;
     sumValue = E->Sum(j, sumIndex); // Passing sumIndex by reference
@@ -228,25 +226,25 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
         sumValue += E->GetNext(sumIndex);
     }
 
-    #ifdef LCPTOPARENTHESES_DEBUG
+#ifdef LCPTOPARENTHESES_DEBUG
         printf("Append %lu closing parentheses to end\n", j);
-    #endif
+#endif
     for (ulong k = 0; k < j; k ++)
         P->appendBit(false);
-    
+
     ulong *bp = P->getBits();
     bitsInP = P->getPositions();
     //printf("bitsInP = %lu, getPositions() = %lu\n", bitsInP, P->getPositions());
-    
+
     delete D;
     delete E;
-    
+
     delete P;
     return bp;
 }
 
 // Construct from a file
-ulong * LcpToParentheses::GetBalancedParentheses(const char *filename, ulong &bitsInP)
+ulong *LcpToParentheses::GetBalancedParentheses(const char *filename, ulong &bitsInP)
 {
     std::ifstream file (filename, ios::in|ios::binary);
     if (file.is_open())
@@ -259,7 +257,7 @@ ulong * LcpToParentheses::GetBalancedParentheses(const char *filename, ulong &bi
         file.close();
         return bp;
     }
-    else 
+    else
     {
         std::cout << "Unable to open file " << filename << std::endl;
         exit(1);
@@ -279,7 +277,7 @@ void LcpToParentheses::SaveToFile(const char *filename, ulong *bp, ulong bitsInP
             file.write((char *)(bp + offset), sizeof(ulong));
         file.close();
     }
-    else 
+    else
     {
         std::cout << "Unable to open file " << filename << std::endl;
         exit(1);

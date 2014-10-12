@@ -15,12 +15,11 @@ class CSA {
 private:
     class TCodeEntry {
     public:
-        unsigned count;
-        unsigned bits;
-        unsigned code;
-        TCodeEntry() {count=0;bits=0;code=0u;};
-    };   
-     
+        uint count;
+        uint bits;
+        uint code;
+        TCodeEntry() {count = 0; bits = 0; code = 0u;};
+    };
 
     class THuffAlphabetRank {
     // using fixed 0...255 alphabet
@@ -32,46 +31,46 @@ private:
         uchar ch;
         bool leaf;
     public:
-        THuffAlphabetRank(uchar *, ulong, TCodeEntry *, unsigned);
+        THuffAlphabetRank(uchar *, ulong, TCodeEntry *, uint);
         ~THuffAlphabetRank();
         bool Test(uchar *, ulong);
-        
+
         inline ulong rank(int c, ulong i) { // returns the number of characters c before and including position i
             THuffAlphabetRank *temp=this;
             if (codetable[c].count == 0) return 0;
-            unsigned level = 0;
-            unsigned code = codetable[c].code;
+            uint level = 0;
+            uint code = codetable[c].code;
             while (!temp->leaf) {
                 if ((code & (1u<<level)) == 0) {
-                i = i-temp->bitrank->rank(i); 
-                    temp = temp->left; 
+                i = i-temp->bitrank->rank(i);
+                    temp = temp->left;
                 }
-                else { 
-                    i = temp->bitrank->rank(i)-1; 
+                else {
+                    i = temp->bitrank->rank(i)-1;
                     temp = temp->right;
                 }
                ++level;
-            } 
+            }
             return i+1;
-        };   
+        };
         inline bool IsCharAtPos(int c, ulong i) {
             THuffAlphabetRank *temp=this;
             if (codetable[c].count == 0) return false;
-            unsigned level = 0;
-            unsigned code = codetable[c].code;      
+            uint level = 0;
+            uint code = codetable[c].code;
             while (!temp->leaf) {
                 if ((code & (1u<<level))==0) {
                     if (temp->bitrank->IsBitSet(i)) return false;
-                    i = i-temp->bitrank->rank(i); 
-                    temp = temp->left; 
+                    i = i-temp->bitrank->rank(i);
+                    temp = temp->left;
                 }
-                else { 
-                    if (!temp->bitrank->IsBitSet(i)) return false;         
-                    i = temp->bitrank->rank(i)-1; 
+                else {
+                    if (!temp->bitrank->IsBitSet(i)) return false;
+                    i = temp->bitrank->rank(i)-1;
                     temp = temp->right;
                 }
                ++level;
-            } 
+            }
             return true;
         }
         inline int charAtPos(ulong i) {
@@ -82,9 +81,9 @@ private:
                 temp = temp->right;
             }
             else {
-                i = i-temp->bitrank->rank(i); 
-                    temp = temp->left;      
-            }         
+                i = i-temp->bitrank->rank(i);
+                    temp = temp->left;
+            }
             }
             return (int)temp->ch;
         }
@@ -92,22 +91,22 @@ private:
 
     class node {
     private:
-        unsigned weight;
+        uint weight;
         uchar value;
         node *child0;
         node *child1;
-    
-        void maketable( unsigned code, unsigned bits, TCodeEntry *codetable ) const;
+
+        void maketable( uint code, uint bits, TCodeEntry *codetable ) const;
         static void count_chars(uchar *, ulong , TCodeEntry *);
-        static unsigned SetBit(unsigned , unsigned , unsigned );
+        static uint SetBit(uint , uint , uint );
     public:
-        node( unsigned char c = 0, unsigned i = 0 ) {
+        node( uchar c = 0, uint i = 0 ) {
             value = c;
             weight = i;
             child0 = 0;
             child1 = 0;
         }
-        
+
         node( node* c0, node *c1 ) {
             value = 0;
             weight = c0->weight + c1->weight;
@@ -115,26 +114,26 @@ private:
             child1 = c1;
         }
 
-      
+
         bool operator>( const node &a ) const {
             return weight > a.weight;
         }
 
         static TCodeEntry *makecodetable(uchar *, ulong);
     };
-    
-    static const unsigned char print = 1;
-    static const unsigned char report = 1;
+
+    static const uchar print = 1;
+    static const uchar report = 1;
     ulong n;
-    unsigned samplerate;
+    uint samplerate;
     ulong C[256];
     ulong bwtEndPos;
     THuffAlphabetRank *alphabetrank;
-    BitRank *sampled; 
+    BitRank *sampled;
     ulong *suffixes;
     ulong *positions;
     TCodeEntry *codetable;
-    
+
     // Private methods
     uchar * BWT(uchar *);
     uchar * LoadFromFile(const char *);
@@ -142,7 +141,7 @@ private:
     void maketables();
 
 public:
-    CSA(uchar *, ulong, unsigned, const char * = 0, const char * = 0);
+    CSA(uchar *, ulong, uint, const char * = 0, const char * = 0);
     ~CSA();
     ulong Search(uchar *, ulong, ulong *, ulong *);
     ulong lookup(ulong);

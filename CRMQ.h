@@ -24,7 +24,7 @@
 //  - blockSampleRate is the sample rate used for Four-Russians technique (log n / 2).
 // The sampleRate value affects the size of M[i, k] and M_j[i, k] tables. The subSampleRate affects the size of M_j[i, k] table.
 // Value of blockSampleRate affects only the look-up tables.
- 
+
 #ifndef _CRMQ_H_
 #define _CRMQ_H_
 
@@ -42,16 +42,16 @@ class CRMQ
 private:
     ulong *M, *subM;     // Arrays M[i, k] and M_j[i, k]
     ulong *P;            // Parentheses sequence
-    unsigned widthM;
-    unsigned widthSubM;
+    uint widthM;
+    uint widthSubM;
     ulong n;
-    unsigned sampleRate;
-    unsigned subSampleRate;
-    unsigned blockSampleRate;
+    uint sampleRate;
+    uint subSampleRate;
+    uint blockSampleRate;
     SubblockRMQ *srmq;
     //TRMQ *trmq;
     BitRank *br;
-    
+
     ulong lookupSub(ulong, ulong, ulong) const;
     ulong lookupSubblock(ulong, ulong, ulong, ulong) const;
     void SetSubM(ulong j, ulong i, ulong k, ulong value)    // Set value of M_j[i, k]
@@ -91,14 +91,14 @@ private:
 //         printf("Return = %d, value = %d\n", minIndex, minValue);
         return minIndex;
     }
-        
+
     ulong GetValue(ulong i) const   // Get value of P'[i]
     {
         return 2 * br->rank(i) - i;
     }
 
 public:
-    CRMQ(BitRank *, ulong *, ulong, unsigned, unsigned, unsigned);
+    CRMQ(BitRank *, ulong *, ulong, uint, uint, uint);
     ~CRMQ();
     ulong lookup(ulong, ulong) const;
 };

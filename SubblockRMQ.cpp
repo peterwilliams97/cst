@@ -20,7 +20,7 @@
 
 #include "SubblockRMQ.h"
 
-SubblockRMQ::SubblockRMQ(unsigned sampleRate)
+SubblockRMQ::SubblockRMQ(uint sampleRate)
 {
     answerWidth = Tools::CeilLog2(sampleRate);
     this->sampleRate = sampleRate;
@@ -30,26 +30,26 @@ SubblockRMQ::SubblockRMQ(unsigned sampleRate)
     #endif
     answer = new ulong[((1 << sampleRate) * sampleRate * sampleRate * answerWidth) /  W + 1];
 
-    for (ulong block = 0; block < (unsigned)(1 << sampleRate); block++)
+    for (ulong block = 0; block < (uint)(1 << sampleRate); block++)
     {
         #ifdef DEBUG_SUBBLOCK_RMQ
             printf("0123456789\n");
             Tools::PrintBitSequence(&block, sampleRate);
         #endif
-        for (unsigned i = 0; i < sampleRate; i++)
+        for (uint i = 0; i < sampleRate; i++)
         {
             #ifdef DEBUG_SUBBLOCK_RMQ
                 printf("Setting Answer(%d, %d, %d) = %d\n", block, i, i, i);
             #endif
             Tools::SetField(answer, answerWidth, block * sampleRate * sampleRate + i * sampleRate + i, i);
 
-            for (unsigned j = i + 1; j < sampleRate; j++)
+            for (uint j = i + 1; j < sampleRate; j++)
             {
                 BitRank *brf = new BitRank(&block, sampleRate, false);
                 int minValue = 2 * brf->rank(i) - i;
-                unsigned minIndex = i;
+                uint minIndex = i;
 
-                for (unsigned k = i + 1; k < j + 1; k++)
+                for (uint k = i + 1; k < j + 1; k++)
                     if (minValue > (int)(2 * brf->rank(k) - k))
                     {
                         minValue = (int)(2 * brf->rank(k) - k);
@@ -67,12 +67,10 @@ SubblockRMQ::SubblockRMQ(unsigned sampleRate)
     }
 }
 
-SubblockRMQ::~SubblockRMQ()
-{
+SubblockRMQ::~SubblockRMQ() {
     delete [] answer;
 }
 
-unsigned SubblockRMQ::lookup(unsigned block, unsigned i, unsigned j) const
-{
+uint SubblockRMQ::lookup(uint block, uint i, uint j) const {
     return Tools::GetField(answer, answerWidth, block * sampleRate * sampleRate + i * sampleRate + j);
 }

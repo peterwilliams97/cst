@@ -23,52 +23,51 @@
 // Construct LCP-array (Space-efficient version of Kasai's algorithm)
 CHgtArray::CHgtArray(CSA *csa, const uchar *text, ulong n)
 {
-    this->csa = csa;
+    _csa = csa;
 
     ulong i;
-    this->n = n;
-    HgtBits = new ulong[2 * n / W + 1];
-    for (i = 0; i < 2 * n / W + 1; i++)
-        HgtBits[i] = 0lu;
+    _n = n;
+    _HgtBits = new ulong[2 * n / W + 1];
+    for (i = 0; i < 2 * n / W + 1; i++) {
+        _HgtBits[i] = 0lu;
+    }
 
     // Init Hgt array
     ulong lcp = 0, prev = 0, k = 0;
-    for (i = 0; i < n; i++)
-    {
-        if (lcp > 0)
+    for (i = 0; i < n; i++) {
+        if (lcp > 0) {
             lcp--;
+        }
 
         ulong j = csa->inverse(i);
-        if (j == n - 1)
+        if (j == n - 1) {
             lcp = 0; // Hgt[n] = 0
-        else
-        {
+        } else {
             j = csa->lookup(j + 1);
             while (text[i + lcp] == text[j + lcp] && text[i + lcp] != '\0')
                 lcp++;
         }
 
         k += lcp - prev + 1;
-        Tools::SetField(HgtBits, 1, k, 1);
+        Tools::SetField(_HgtBits, 1, k, 1);
         k++;
         prev = lcp;
     }
 
-    this->Hgt = new BitRank(HgtBits, 2 * n, true);
+    _Hgt = new BitRank(_HgtBits, 2 * n, true);
 }
 
 // Construct from a file
-CHgtArray::CHgtArray(CSA *csa, const char *filename)
-{
-    this->csa = csa;
+CHgtArray::CHgtArray(CSA *csa, const char *filename) {
+    _csa = csa;
     std::ifstream file (filename, ios::in|ios::binary);
     if (file.is_open())
     {
         std::cout << "Loading HgtArray from file: " << filename << std::endl;
-        file.read((char *)&n, sizeof(ulong));
-        HgtBits = new ulong[2 * n / W + 1];
-        for (ulong offset = 0; offset < (2 * n / W + 1); offset ++)
-            file.read((char *)(HgtBits + offset), sizeof(ulong));
+        file.read((char *)&_n, sizeof(ulong));
+        _HgtBits = new ulong[2 * _n / W + 1];
+        for (ulong offset = 0; offset < (2 * _n / W + 1); offset++)
+            file.read((char *)(_HgtBits + offset), sizeof(ulong));
         file.close();
     }
     else
@@ -77,7 +76,7 @@ CHgtArray::CHgtArray(CSA *csa, const char *filename)
         exit(1);
     }
 
-    this->Hgt = new BitRank(HgtBits, 2 * n, true);
+    _Hgt = new BitRank(_HgtBits, 2 * _n, true);
 }
 
 
@@ -87,10 +86,10 @@ void CHgtArray::SaveToFile(const char *filename)
     if (file.is_open())
     {
         std::cout << "Writing HgtArray to file: " << filename << std::endl;
-        file.write((char *)&n, sizeof(ulong));
-        std::cout << "Writing HgtArray of " << (2 * n / W + 1) << " words." << std::endl;
-        for (ulong offset = 0; offset < (2 * n / W + 1); offset ++)
-            file.write((char *)(HgtBits + offset), sizeof(ulong));
+        file.write((char *)&_n, sizeof(ulong));
+        std::cout << "Writing HgtArray of " << (2 * _n / W + 1) << " words." << std::endl;
+        for (ulong offset = 0; offset < (2 * _n / W + 1); offset ++)
+            file.write((char *)(_HgtBits + offset), sizeof(ulong));
         file.close();
     }
     else
@@ -100,25 +99,19 @@ void CHgtArray::SaveToFile(const char *filename)
     }
 }
 
-
-
-CHgtArray::~CHgtArray()
-{
-    delete Hgt; // Deletes HgtBits array!
-    HgtBits = 0;
+CHgtArray::~CHgtArray() {
+    delete _Hgt; // Deletes HgtBits array!
+    _HgtBits = 0;
 }
 
-void CHgtArray::SetSA(CSA *csa)
-{
-    this->csa = csa;
+void CHgtArray::SetSA(CSA *csa) {
+    _csa = csa;
 }
 
-ulong CHgtArray::GetPos(ulong i) const
-{
-    if (i >= n)
+ulong CHgtArray::GetPos(ulong i) const {
+    if (i >= _n)
         return 0;
 
-    ulong k = csa->lookup(i) + 1;
-    return Hgt->select(k) - 2 * k + 1;
+    ulong k = _csa->lookup(i) + 1;
+    return _Hgt->select(k) - 2 * k + 1;
 }
-

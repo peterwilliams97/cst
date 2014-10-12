@@ -28,11 +28,11 @@
 class CHgtArray
 {
 private:
-    ulong n;
-    ulong *HgtBits;
-    BitRank *Hgt;
-    CSA *csa;
-    
+    ulong _n;
+    ulong *_HgtBits;
+    BitRank *_Hgt;
+    CSA *_csa;
+
 public:
     CHgtArray(CSA *, const uchar *, ulong);
     CHgtArray(CSA *, const char *);
