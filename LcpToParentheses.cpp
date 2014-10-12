@@ -157,10 +157,10 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
 
         ulong splitLcp = n - sumValue;
 
-        #ifdef LCPTOPARENTHESES_DEBUG
+#ifdef LCPTOPARENTHESES_DEBUG
             printf("j = %lu\n", j);
             printf("Append %lu closing parentheses\n", j - 1);
-        #endif
+#endif
 
         // Append j - 1 closing parentheses
         for (ulong k = 0; k < j - 1; k ++)
@@ -170,7 +170,7 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
         {
             // Get split node's index
             ulong r = p - D->Sum(j - 1, sumIndex);
-            #ifdef LCPTOPARENTHESES_DEBUG
+#ifdef LCPTOPARENTHESES_DEBUG
                 printf("r = %lu\n", r);
                 printf("Inserting ( to index %lu\n", r);
                 printf("Removing %lu from E\n", j);
@@ -178,7 +178,7 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
                 printf("Adding %lu to E\n", n - lcp);
                 printf("Removing %lu from D\n", j - 1);
                 printf("Adding %lu to D\n", p + j + 2 - r);
-            #endif
+#endif
 
             P->insertBit(true, r + 1);
 
@@ -194,13 +194,13 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
         {
             // Get split node's index
             ulong r = p - D->Sum(j, sumIndex);
-            #ifdef LCPTOPARENTHESES_DEBUG
+#ifdef LCPTOPARENTHESES_DEBUG
                 printf("r = %lu\n", r);
                 printf("Removing %lu from E\n", j);
                 printf("Adding %lu to E\n", n - lcp);
                 printf("Removing %lu from D\n", j);
                 printf("Adding %lu to D\n", p + j + 1 - r);
-            #endif
+#endif
 
             E->Remove(j);
             E->Add(n - lcp);
@@ -209,9 +209,9 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
             D->Add(p + j + 1 - r);
         }
 
-        #ifdef LCPTOPARENTHESES_DEBUG
+#ifdef LCPTOPARENTHESES_DEBUG
             printf("Append ()\n");
-        #endif
+#endif
         P->appendBit(true);
         P->appendBit(false);
         p += 2 + j - 1;

@@ -25,9 +25,9 @@ SubblockRMQ::SubblockRMQ(uint sampleRate)
     answerWidth = Tools::CeilLog2(sampleRate);
     this->sampleRate = sampleRate;
 
-    #ifdef DEBUG_SUBBLOCK_RMQ
+#ifdef DEBUG_SUBBLOCK_RMQ
         printf("Allocating %d bits in %d bytes for %d x %d x %d array (width = %d)\n", (1 << sampleRate) * sampleRate * sampleRate * answerWidth, ((1 << sampleRate) * sampleRate * sampleRate * answerWidth) /  W + 1, 1 << sampleRate, sampleRate, sampleRate, answerWidth);
-    #endif
+#endif
     answer = new ulong[((1 << sampleRate) * sampleRate * sampleRate * answerWidth) /  W + 1];
 
     for (ulong block = 0; block < (uint)(1 << sampleRate); block++)

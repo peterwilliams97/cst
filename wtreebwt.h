@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2006 by Wolfgang Gerlach   *
- *      *
+ *   Copyright (C) 2006 by Wolfgang Gerlach                                *
+ *                                                                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

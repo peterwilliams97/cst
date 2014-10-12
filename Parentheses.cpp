@@ -291,16 +291,16 @@ ulong Parentheses::findclose(ulong i) {
     // first see if it is at small distance
      len = W; if (i+len >= n) len = n - i - 1;
      bitW = ~(Tools::GetVariableField(bp, len, i + 1));
-     exc = 0; 
+     exc = 0;
      len = 0;
      while (bitW && (exc < W/2)) {
         // either we shift it all or it only opens parentheses or too
         // many open parentheses
         W1 = bitW & 255;
-        if ((res = FwdPos[W1][exc])) { 
+        if ((res = FwdPos[W1][exc])) {
             return i + len + res;
         }
-        bitW >>= 8; 
+        bitW >>= 8;
         exc += Excess[W1];
         len += 8;
     }
@@ -321,7 +321,7 @@ ulong Parentheses::findclose(ulong i) {
     }
     // finally, it has to be a far pointer
      res = sftable->searchHash (i,&h);
-     while (res) { 
+     while (res) {
          if (!minres || (res < minres)) {
             if ((i+res+1 < n) && (excess(i+res+1) == myexcess)) {
                 minres = res;
@@ -344,7 +344,7 @@ ulong Parentheses::findparent(ulong i) {
     // first see if it is at small distance
     len = W; if (i < len) len = i-1;
     bitW = Tools::GetVariableField (bp,len, i-len) << (W-len);
-    exc = 0; 
+    exc = 0;
     len = 0;
     while (bitW && (exc < W/2))
         // either we shift it all or it only closes parentheses or too
@@ -388,7 +388,7 @@ ulong Parentheses::excess(ulong i) {
 // open position of closest parentheses pair that contains the pair
 // that opens at i, ~0 if no parent
 ulong Parentheses::enclose(ulong i) {
-    if (i == 0) 
+    if (i == 0)
         return 0; // no parent!
     if (excess(i) == 1)
         return 0;

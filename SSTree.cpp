@@ -509,11 +509,11 @@ void SSTree::PrintEdge(ulong v) {
 ulong SSTree:: lcaParen(ulong v, ulong w) {
 
     ulong temp;
-    if (v < w) 
+    if (v < w)
         temp = _Pr->findclose(w);
-    else 
+    else
         temp = _Pr->findclose(v);
-    if (v == w) 
+    if (v == w)
         return w;
     if (v > w)
         v = w;
@@ -539,7 +539,7 @@ void SSTree::CheckLCA(ulong v)
         v1 = _br->select(w+1);
         while(v1 < len) {
             if (lca(temp, v1) != lcaParen(temp, v1)) {
-                printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n", 
+                printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n",
                         temp, v1, lcaParen(temp, v1), lca(temp, v1));
                 exit(0);
             }
@@ -548,7 +548,7 @@ void SSTree::CheckLCA(ulong v)
 
         // Check for the value v1 == len
         if (lca(temp, v1) != lcaParen(temp, v1)) {
-            printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n", 
+            printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n",
                     temp, v1, lcaParen(temp, v1), lca(temp, v1));
             exit(0);
         }

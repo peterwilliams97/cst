@@ -27,17 +27,15 @@ using namespace std;
 #ifndef RBTree
 #define RBTree RBTree
 
-
 enum RBNodecolor{BLACK, RED};
-
 
 // generic Red-Black Tree Node:
 class RBNode
 {
     public:
-    RBNode* parent;
-    RBNode* left;
-    RBNode* right;
+    RBNode *parent;
+    RBNode *left;
+    RBNode *right;
 
     enum RBNodecolor color;
 

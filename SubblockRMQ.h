@@ -30,15 +30,15 @@
 class SubblockRMQ
 {
 private:
-    unsigned sampleRate;
-    unsigned answerWidth;
+    uint sampleRate;
+    uint answerWidth;
     ulong *answer;
     
 
 public:
-    SubblockRMQ(unsigned);
+    SubblockRMQ(uint);
     ~SubblockRMQ();
-    unsigned lookup(unsigned, unsigned, unsigned) const;
+    uint lookup(uint, uint, uint) const;
 };
 
 #endif
