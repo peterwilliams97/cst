@@ -10,7 +10,7 @@
  * License as published by the Free Software Foundation; either              *
  * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
- * This library is distributed in the hope that it will be useful,           * 
+ * This library is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
  * Lesser General Public License for more details.                           *
@@ -21,9 +21,9 @@
  ****************************************************************************/
 
 // Modified by Niko Välimäki
- 
+
 /////////////
-//Rank(B,i)// 
+//Rank(B,i)//
 /////////////
 //This Class use a superblock size of 256-512 bits
 //and a block size of 32-64 bits also
@@ -63,9 +63,9 @@ const unsigned char select_tab[] =
 
 // bits needed to represent a number between 0 and n
 inline ulong bits (ulong n){
-	ulong b = 0;
-	while (n) { b++; n >>= 1; }
-	return b;
+    ulong b = 0;
+    while (n) { b++; n >>= 1; }
+    return b;
 }
 
 #if W == 32
@@ -99,10 +99,10 @@ BitRank::BitRank(ulong *bitarray, ulong n, bool owner, ReplacePattern *rp) {
     ulong aux=(n+1)%W;
     if (aux != 0)
         integers = (n+1)/W+1;
-    else 
+    else
         integers = (n+1)/W;
     BuildRank();
-    
+
     if (rp != 0)
     {
         delete [] data;
@@ -119,43 +119,41 @@ BitRank::~BitRank() {
 //Build the rank (blocks and superblocks)
 void BitRank::BuildRank()
 {
-    ulong num_sblock = n/s;
-    ulong num_block = n/b;
-    Rs = new ulong[num_sblock+1];//+1 we add the 0 pos
-    Rb = new uchar[num_block+1];//+1 we add the 0 pos
-	
-	ulong j;
+    ulong num_sblock = n / s;
+    ulong num_block = n / b;
+    Rs = new ulong[num_sblock + 1];//+1 we add the 0 pos
+    Rb = new uchar[num_block + 1];//+1 we add the 0 pos
+    ulong j;
+
     Rs[0] = 0lu;
-	
-    for (j=1;j<=num_sblock;j++) 
-        {
-			Rs[j]=BuildRankSub((j-1)*superFactor,superFactor)+Rs[j-1];
-		}
-    
+
+    for (j=1;j<=num_sblock;j++)  {
+        Rs[j]=BuildRankSub((j - 1) * superFactor, superFactor) + Rs[j - 1];
+    }
+
     Rb[0]=0;
     for (ulong k=1;k<=num_block;k++) {
         j = k / superFactor;
-        Rb[k]=BuildRankSub(j*superFactor, k%superFactor);
-	  }
+        Rb[k] = (uchar)BuildRankSub(j * superFactor, k % superFactor);
+    }
 }
 
 ulong BitRank::BuildRankSub(ulong ini, ulong bloques){
     ulong rank=0,aux;
-    
-	
-	for(ulong i=ini;i<ini+bloques;i++) {
-		if (i < integers) {
-			aux=data[i];
-			rank+=popcount(aux);
-		}
-	}
+
+    for(ulong i=ini;i<ini+bloques;i++) {
+    if (i < integers) {
+        aux=data[i];
+        rank+=popcount(aux);
+    }
+}
      return rank; //return the numbers of 1's in the interval
 }
 
 
 //this rank ask from 0 to n-1
 ulong BitRank::rank(ulong i) {
-    ++i; // the following gives sum of 1s before i 
+    ++i; // the following gives sum of 1s before i
     if (rp == 0) return Rs[i>>8]+Rb[i>>wordShift]
         +popcount(data[i >> wordShift] & ((1lu << (i & Wminusone))-1));
 
@@ -171,22 +169,22 @@ ulong BitRank::select(ulong x) {
     // then sequential search using popcount over a int
     // then sequential search using popcount over a char
     // then sequential search bit a bit
-    
+
     //binary search over first level rank structure
     if (x == 0)
         return 0;
-        
+
     ulong l=0, r=n/s;
-    ulong mid=(l+r)/2;      
+    ulong mid=(l+r)/2;
     ulong rankmid = Rs[mid];
     while (l<=r) {
         if (rankmid<x)
             l = mid+1;
         else
             r = mid-1;
-        mid = (l+r)/2;              
+        mid = (l+r)/2;
         rankmid = Rs[mid];
-    }    
+    }
     //sequential search using popcount over a int
     ulong left;
     left=mid*superFactor;
@@ -196,22 +194,22 @@ ulong BitRank::select(ulong x) {
         j = data[left];
     else
         j = rp->returnWord(data, left << wordShift, n);
-    
+
     unsigned ones = popcount(j);
     while (ones < x) {
         x-=ones;left++;
-        if (left > integers) 
+        if (left > integers)
             return n;
-            
+
         if (rp == 0)
             j = data[left];
         else
             j = rp->returnWord(data, left << wordShift, n);
-        
+
         ones = popcount(j);
     }
     //sequential search using popcount over a char
-    left=left*b; 
+    left=left*b;
     rankmid = popcount8(j);
     if (rankmid < x) {
         j=j>>8;
@@ -246,11 +244,11 @@ ulong BitRank::select0(ulong x) {
     // then sequential search using popcount over a int
     // then sequential search using popcount over a char
     // then sequential search bit a bit
-    
+
     //binary search over first level rank structure
     if (x == 0)
         return 0;
-        
+
     ulong l=0, r=n/s;
     ulong mid=(l+r)/2;
     ulong rankmid = mid * s - Rs[mid];
@@ -259,10 +257,10 @@ ulong BitRank::select0(ulong x) {
             l = mid+1;
         else
             r = mid-1;
-        mid = (l+r)/2;              
+        mid = (l+r)/2;
         rankmid = mid * s - Rs[mid];
-    }    
-    
+    }
+
     //sequential search using popcount over a int
     ulong left;
     left=mid*superFactor;
@@ -272,21 +270,21 @@ ulong BitRank::select0(ulong x) {
         j = data[left];
     else
         j = rp->returnWord(data, left << wordShift, n);
-    
+
     unsigned zeros = W - popcount(j);
     while (zeros < x) {
         x-=zeros;
         left++;
-        if (left > integers) 
+        if (left > integers)
             return n;
-            
+
         if (rp == 0)
             j = data[left];
         else
             j = rp->returnWord(data, left << wordShift, n);
         zeros = W - popcount(j);
     }
-    
+
     //sequential search using popcount over a char
     left=left*b;
     rankmid = 8 - popcount8(j);
@@ -319,7 +317,7 @@ ulong BitRank::select0(ulong x) {
 
 
 bool BitRank::IsBitSet(ulong i) {
-    return (1lu << (i % W)) & data[i/W];
+    return ((1lu << (i % W)) & data[i / W]) ? true : false;
 }
 
 ulong BitRank::NumberOfBits() {

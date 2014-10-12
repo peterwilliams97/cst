@@ -24,14 +24,14 @@ SubblockRMQ::SubblockRMQ(unsigned sampleRate)
 {
     answerWidth = Tools::CeilLog2(sampleRate);
     this->sampleRate = sampleRate;
-    
+
     #ifdef DEBUG_SUBBLOCK_RMQ
         printf("Allocating %d bits in %d bytes for %d x %d x %d array (width = %d)\n", (1 << sampleRate) * sampleRate * sampleRate * answerWidth, ((1 << sampleRate) * sampleRate * sampleRate * answerWidth) /  W + 1, 1 << sampleRate, sampleRate, sampleRate, answerWidth);
     #endif
     answer = new ulong[((1 << sampleRate) * sampleRate * sampleRate * answerWidth) /  W + 1];
 
     for (ulong block = 0; block < (unsigned)(1 << sampleRate); block++)
-    {        
+    {
         #ifdef DEBUG_SUBBLOCK_RMQ
             printf("0123456789\n");
             Tools::PrintBitSequence(&block, sampleRate);
@@ -42,13 +42,13 @@ SubblockRMQ::SubblockRMQ(unsigned sampleRate)
                 printf("Setting Answer(%d, %d, %d) = %d\n", block, i, i, i);
             #endif
             Tools::SetField(answer, answerWidth, block * sampleRate * sampleRate + i * sampleRate + i, i);
-            
+
             for (unsigned j = i + 1; j < sampleRate; j++)
             {
                 BitRank *brf = new BitRank(&block, sampleRate, false);
                 int minValue = 2 * brf->rank(i) - i;
                 unsigned minIndex = i;
-                
+
                 for (unsigned k = i + 1; k < j + 1; k++)
                     if (minValue > (int)(2 * brf->rank(k) - k))
                     {
@@ -76,5 +76,3 @@ unsigned SubblockRMQ::lookup(unsigned block, unsigned i, unsigned j) const
 {
     return Tools::GetField(answer, answerWidth, block * sampleRate * sampleRate + i * sampleRate + j);
 }
-
-

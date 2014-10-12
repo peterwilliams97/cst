@@ -22,7 +22,7 @@
 // uses huffman shaped wavelet tree
 // space: O(n log \sigma) time: O(log n log \sigma)
 // papers: V. Maekinen, G. Navarro. Dynamic Entropy-Compressed Sequences and Full-Text
-//           Indexes. CPM 2006, Chapter 3.6 
+//           Indexes. CPM 2006, Chapter 3.6
 
 
 #include <iostream>
@@ -47,36 +47,36 @@ using namespace std;
 
 
 class WaveletNode{
-	public:
-	
-	WaveletNode *left;
-	WaveletNode *right;
-	WaveletNode *parent;
-	ulong weight; // used only while construction
-	uchar c0;      // used also while construction
-	uchar c1;
-	
-	BVTree *bittree;
-	
-	WaveletNode(uchar c)
-		: left(0), right(0), parent(0), weight(0), c0(c), bittree(0){}
+    public:
 
-	WaveletNode(WaveletNode *left, WaveletNode *right)
-		: left(left), right(right), parent(0), bittree(0) {
-		weight = left->weight + right->weight;
-		left->parent = this;
-		right->parent = this;
-	}
-	
-	~WaveletNode(){
-		delete bittree;
-	}
-	
-	bool operator>(const WaveletNode &a) const {
-		return (weight > a.weight);
-	}
-	
-	
+    WaveletNode *left;
+    WaveletNode *right;
+    WaveletNode *parent;
+    ulong weight; // used only while construction
+    uchar c0;      // used also while construction
+    uchar c1;
+
+    BVTree *bittree;
+
+    WaveletNode(uchar c)
+        : left(0), right(0), parent(0), weight(0), c0(c), bittree(0){}
+
+    WaveletNode(WaveletNode *left, WaveletNode *right)
+        : left(left), right(right), parent(0), bittree(0) {
+        weight = left->weight + right->weight;
+        left->parent = this;
+        right->parent = this;
+    }
+
+    ~WaveletNode(){
+        delete bittree;
+    }
+
+    bool operator>(const WaveletNode &a) const {
+        return (weight > a.weight);
+    }
+
+
 };
 
 namespace std
@@ -94,100 +94,100 @@ template<> struct greater<WaveletNode*>
     }
   };
 }
-  
-  
+
+
 class DynFMI{
-	public:
-		
-		//construct bwt
-		DynFMI(uchar *text, ulong n);
-		
-		
-		~DynFMI();
-		
-		//get result (bwt)
-		uchar* getBWT();
-				
-		
+    public:
 
-		ulong getSize() {return root->bittree->getPositions();}
-		
-		
-		//LF(i)-mapping: C[L[i]]+rank_L[i](L,i)
-		ulong LFmapping(ulong i) {
-			uchar s=(*this)[i];
-			return (ulong)getNumberOfSymbolsSmallerThan(s) + rank(s,i);
-			}
-		
-
-		
-		void printDynFMIContent(ostream& stream);
-		
-		
-		
-	private:
-		WaveletNode *root;
-		WaveletNode **leaves;
-		
-		ulong codes[256];
-		int codelengths[256];
-		ulong C[256+256];
-		
-		
-		ulong iterate;
-				
-		uchar operator[](ulong i);
-		void addText(uchar *str, ulong n);
-
-		ulong rank(uchar c, ulong i);
-		ulong select(uchar c, ulong i);
-	
-		void insert(uchar c, ulong i);
+        //construct bwt
+        DynFMI(uchar *text, ulong n);
 
 
-		// functions
-		ulong getNumberOfSymbolsSmallerThan(uchar c);
-		
-		void initEmptyDynFMI(uchar *text);
-		
-		void makeCodes(ulong code, int bits, WaveletNode *node);
-		void deleteLeaves(WaveletNode *node);
-		void appendBVTrees(WaveletNode *node);
-		
-		void deleteDynFMINodes(WaveletNode *n);
-		
-		//Iterator (public??)
-		void iterateReset();
-		bool iterateNext();
-		uchar iterateGetSymbol();
-		void recursiveIterateResetWaveletNode(WaveletNode *w);
-		
+        ~DynFMI();
 
-		// small help functions
-		double log2(double x){
-			return (log10(x) / log10((double)2));
-		}
-		
-		int binaryTree_parent(int i){
-			return (int)floor((double)i/2);
-		}
+        //get result (bwt)
+        uchar* getBWT();
 
-		int binaryTree_left(int i){
-			return 2*i;
-		}
 
-		int binaryTree_right(int i){
-			return 2*i + 1;
-		}
 
-		bool binaryTree_isLeftChild(int i){
-			return (i%2==(int)0);
-		}
+        ulong getSize() {return root->bittree->getPositions();}
 
-		bool binaryTree_isRightChild(int i){
-			return (i%2==(int)1);
-		}
-		
+
+        //LF(i)-mapping: C[L[i]]+rank_L[i](L,i)
+        ulong LFmapping(ulong i) {
+            uchar s=(*this)[i];
+            return (ulong)getNumberOfSymbolsSmallerThan(s) + rank(s,i);
+            }
+
+
+
+        void printDynFMIContent(ostream& stream);
+
+
+
+    private:
+        WaveletNode *root;
+        WaveletNode **leaves;
+
+        ulong codes[256];
+        int codelengths[256];
+        ulong C[256+256];
+
+
+        ulong iterate;
+
+        uchar operator[](ulong i);
+        void addText(uchar *str, ulong n);
+
+        ulong rank(uchar c, ulong i);
+        ulong select(uchar c, ulong i);
+
+        void insert(uchar c, ulong i);
+
+
+        // functions
+        ulong getNumberOfSymbolsSmallerThan(uchar c);
+
+        void initEmptyDynFMI(uchar *text);
+
+        void makeCodes(ulong code, int bits, WaveletNode *node);
+        void deleteLeaves(WaveletNode *node);
+        void appendBVTrees(WaveletNode *node);
+
+        void deleteDynFMINodes(WaveletNode *n);
+
+        //Iterator (public??)
+        void iterateReset();
+        bool iterateNext();
+        uchar iterateGetSymbol();
+        void recursiveIterateResetWaveletNode(WaveletNode *w);
+
+
+        // small help functions
+        double log2(double x){
+            return (log10(x) / log10((double)2));
+        }
+
+        int binaryTree_parent(int i){
+            return (int)floor((double)i/2);
+        }
+
+        int binaryTree_left(int i){
+            return 2*i;
+        }
+
+        int binaryTree_right(int i){
+            return 2*i + 1;
+        }
+
+        bool binaryTree_isLeftChild(int i){
+            return (i%2==(int)0);
+        }
+
+        bool binaryTree_isRightChild(int i){
+            return (i%2==(int)1);
+        }
+
 };
 
 

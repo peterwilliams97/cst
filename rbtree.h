@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 
-// this is a red-black tree implementation by wolfgang Gerlach based on the algorithm provided by 
+// this is a red-black tree implementation by wolfgang Gerlach based on the algorithm provided by
 // Cormen et al.: Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001
 
 using namespace std;
@@ -27,94 +27,89 @@ using namespace std;
 #ifndef RBTree
 #define RBTree RBTree
 
- 
 
-
-enum RBNodecolor{BLACK,RED};
+enum RBNodecolor{BLACK, RED};
 
 
 // generic Red-Black Tree Node:
 class RBNode
 {
-	public:
-	RBNode* parent;
-	RBNode* left;
-	RBNode* right;
-	
-	enum RBNodecolor color;
+    public:
+    RBNode* parent;
+    RBNode* left;
+    RBNode* right;
 
-	RBNode(){};
+    enum RBNodecolor color;
 
-	RBNode(RBNode *n)
-		: parent(n), left(n), right(n){
-		color=RED;
-	}
+    RBNode() {};
 
+    RBNode(RBNode *n)
+        : parent(n), left(n), right(n){
+        color=RED;
+    }
 
-	virtual ~RBNode(){}
+    virtual ~RBNode(){}
 
-	void countBlack(int i){
-		if (this->color == BLACK) i++;
-		if (this->left != this) this->left->countBlack(i);
-			else cout << i << ",";
-		if (this->right != this) this->right->countBlack(i);
-			else cout << i << ",";
-	}
+    void countBlack(int i){
+        if (this->color == BLACK) i++;
+        if (this->left != this) this->left->countBlack(i);
+            else cout << i << ",";
+        if (this->right != this) this->right->countBlack(i);
+            else cout << i << ",";
+    }
 };
 
 class RBTree{
-	public:
+    public:
 
-	RBNode *root;
-	RBNode *nil;
-	
+    RBNode *root;
+    RBNode *nil;
 
-	RBTree(){
-		nil = new RBNode();
-		nil->parent=nil;
-		nil->left=nil;
-		nil->right=nil;
-		nil->color = BLACK;
-		root=nil;
-	}
+    RBTree(){
+        nil = new RBNode();
+        nil->parent=nil;
+        nil->left=nil;
+        nil->right=nil;
+        nil->color = BLACK;
+        root=nil;
+    }
 
-	virtual ~RBTree(){
-		deleteNode(root);
-		delete this->nil;
-	}
+    virtual ~RBTree(){
+        deleteNode(root);
+        delete this->nil;
+    }
 
-	void checkTree();
+    void checkTree();
 
-	void rbInsertFixup(RBNode* z, void (*updateNode)(RBNode* n, RBTree *T));
-	void rbDeleteFixup(RBNode *x, void (*updateNode)(RBNode* n, RBTree *T));
-	void rbDelete(RBNode *z, void (*updateNode)(RBNode* n, RBTree *T));
-	RBNode* findRightSiblingLeaf(RBNode *n);
-	RBNode* findLeftSiblingLeaf(RBNode *n);
-	RBNode* treeSuccessor(RBNode *x);
-	RBNode* treePredeccessor(RBNode *x);
-	RBNode* treeMinimum(RBNode *x);
-	RBNode* treeMaximum(RBNode *x);
-	
-	bool isLeftChild(RBNode *n);
-	bool isRightChild(RBNode *n);
-	
-	int getNodeMaxDepth(RBNode *n);
-	int getNodeMinDepth(RBNode *n);
-	
-	void printSubTree(RBNode *n);
-	void checkSubTree(RBNode *n);
-	void checkNode(RBNode *x);
+    void rbInsertFixup(RBNode* z, void (*updateNode)(RBNode* n, RBTree *T));
+    void rbDeleteFixup(RBNode *x, void (*updateNode)(RBNode* n, RBTree *T));
+    void rbDelete(RBNode *z, void (*updateNode)(RBNode* n, RBTree *T));
+    RBNode* findRightSiblingLeaf(RBNode *n);
+    RBNode* findLeftSiblingLeaf(RBNode *n);
+    RBNode* treeSuccessor(RBNode *x);
+    RBNode* treePredeccessor(RBNode *x);
+    RBNode* treeMinimum(RBNode *x);
+    RBNode* treeMaximum(RBNode *x);
 
-	void deleteNode(RBNode* x){
-		if (x->left!=nil) deleteNode(x->left);
-		if (x->right!=nil) deleteNode(x->right);
-		delete x;
-	}
+    bool isLeftChild(RBNode *n);
+    bool isRightChild(RBNode *n);
 
+    int getNodeMaxDepth(RBNode *n);
+    int getNodeMinDepth(RBNode *n);
 
-	private:
-	void leftRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T));
-	void rightRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T));
+    void printSubTree(RBNode *n);
+    void checkSubTree(RBNode *n);
+    void checkNode(RBNode *x);
+
+    void deleteNode(RBNode* x){
+        if (x->left!=nil) deleteNode(x->left);
+        if (x->right!=nil) deleteNode(x->right);
+        delete x;
+    }
+
+    private:
+    void leftRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T));
+    void rightRotate(RBNode* x, void (*updateNode)(RBNode* n, RBTree *T));
 
 };
 

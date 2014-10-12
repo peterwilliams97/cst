@@ -27,16 +27,22 @@
 #   define W 32
 #endif
 
-#define WW (W*2)
-#define Wminusone (W-1)
+#define WW (W * 2)
+#define Wminusone (W - 1)
 
 #ifndef uchar
 #define uchar unsigned char
+#endif
+#ifndef uint
+#define uint unsigned int
 #endif
 #ifndef ulong
 #define ulong unsigned long
 #endif
 
+#ifdef _WIN32
+double log2(double x);
+#endif
 
 class Tools
 {
@@ -61,27 +67,27 @@ public:
 
     static inline void SetField(ulong *A, register unsigned len, register ulong index, register ulong x) 
     {
-        ulong i = index * len / W, 
-                 j = index * len - i * W;
-        ulong mask = (j+len < W ? ~0lu << j+len : 0) 
-                        | (W-j < W ? ~0lu >> (W-j) : 0);
+        ulong i = index * len / W; 
+        ulong j = index * len - i * W;
+        ulong mask = (j + len < W ? ~0lu << (j + len) : 0) 
+                     | (W - j < W ? ~0lu >> (W - j) : 0);
         A[i] = (A[i] & mask) | x << j;
         if (j + len > W) 
         {
             mask = ((~0lu) << (len + j - W));  
-            A[i+1] = (A[i+1] & mask)| x >> (W - j);
+            A[i+1] = (A[i+1] & mask) | x >> (W - j);
         }     
     }
     
     static inline ulong GetField(ulong *A, register unsigned len, register ulong index) 
     {
-        register ulong i = index * len / W, 
-                       j = index * len - W * i, 
-                       result;
-        if (j + len <= W)
+        ulong i = index * len / W; 
+        ulong j = index * len - W * i; 
+        ulong result;
+        
+        if (j + len <= W) {
             result = (A[i] << (W - j - len)) >> (W - len);
-        else 
-        {
+        } else {
             result = A[i] >> j;
             result = result | (A[i+1] << (WW - j - len)) >> (W - len);
         }
@@ -102,17 +108,16 @@ public:
     }
 
     static inline void SetVariableField(ulong *A, register unsigned len, register ulong index, register ulong x) {
-        ulong i=index/W, 
-                    j=index-i*W;
-        ulong mask = (j+len < W ? ~0lu << j+len : 0) 
-                        | (W-j < W ? ~0lu >> (W-j) : 0);
+        ulong i = index / W; 
+        ulong j = index - i * W;
+        ulong mask = (j + len < W ? ~0lu << (j + len) : 0) 
+                     | (W - j < W ? ~0lu >> (W - j) : 0);
         A[i] = (A[i] & mask) | x << j;
-        if (j+len>W) {
-            mask = ((~0lu) << (len+j-W));  
-            A[i+1] = (A[i+1] & mask)| x >> (W-j);
+        if (j + len > W) {
+            mask = ((~0lu) << (len + j - W));  
+            A[i + 1] = (A[i + 1] & mask)| x >> (W - j);
         } 
     }
-
 
 };
 

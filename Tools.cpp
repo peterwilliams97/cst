@@ -6,6 +6,11 @@
 #include <string.h>
 #include "Tools.h"
 
+#ifdef _WIN32
+double log2(double x) {
+    return log(x) / log(2.0);
+}
+#endif
 
 time_t Tools::startTime;
 
@@ -37,9 +42,9 @@ ulong * Tools::bp2bitstream(uchar* bp)
     ulong *A = new ulong[len/W + 1];
     for (ulong i = 0; i < len; i++)
     {
-        if (bp[i] == '(') 
+        if (bp[i] == '(')
             SetField(A, 1, i, 1);
-        else 
+        else
             SetField(A, 1, i, 0);
     }
     return A;
@@ -61,9 +66,9 @@ unsigned Tools::FloorLog2(ulong i)
     if (i == 0)
         return 0;
     while (i)
-    { 
-        b++; 
-        i >>= 1; 
+    {
+        b++;
+        i >>= 1;
     }
     return b - 1;
 }
@@ -76,7 +81,7 @@ unsigned * Tools::MakeTable()
     {
         if (i == 0)
            table[i] = 0;
-        if (i >= 1 && i < (1 << 1 )) 
+        if (i >= 1 && i < (1 << 1 ))
            table[i] = 1;
         if (i >= (1 << 1 ) && i < (1 << 2 ))
            table[i] = 2;
@@ -114,7 +119,7 @@ unsigned Tools::CeilLog2(ulong i)
     unsigned j = FloorLog2(i);
     if ((ulong)(1lu << j) != i)
         return j + 1;
-        
+
     return j;
 }
 
@@ -133,7 +138,7 @@ uchar * Tools::GetFileContents(char *filename, ulong maxSize)
         file.read (memblock, size);
         memblock[size] = '\0';
         file.close();
-	return (uchar *)memblock;
+    return (uchar *)memblock;
     }
     else
         return 0;
@@ -143,7 +148,7 @@ uchar * Tools::GetFileContents(char *filename, ulong maxSize)
 ulong Tools::ustrlen(uchar *text)
 {
    ulong i=0;
-   
+
    while (text[i]>0u) i++;
    return i;
 }
@@ -151,35 +156,35 @@ ulong Tools::ustrlen(uchar *text)
 char *Tools::uctoc(uchar *text, bool remove)
 {
    ulong i, len = ustrlen(text);
-   
+
    //printf("%d\n",len);
-   
+
    char *result = new char[len+1];
-   
+
    result[len] = '\0';
-   
+
    for(i=0;i<len;i++)
       result[i] = (int)text[i]-128;
-    
+
    if (remove) delete text;
-      
-   return result;       
+
+   return result;
 }
 
 uchar *Tools::ctouc(char *text, bool remove)
 {
    ulong i, len = strlen(text);
-   
+
    uchar *result = new uchar[len+1];
-   
+
    result[len] = 0u;
-   
+
    for(i=0;i<len;i++)
       result[i] = (int)text[i]+128;
-      
+
    if (remove) delete text;
-         
-   return result;       
+
+   return result;
 }
 
 void Tools::RemoveControlCharacters(uchar *data)

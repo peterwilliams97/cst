@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
  ***************************************************************************/
- 
+
 #include "CSA.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ CSA::THuffAlphabetRank::THuffAlphabetRank(uchar *s, ulong n, TCodeEntry *codetab
     ch = s[0];
     leaf = false;
     this->codetable = codetable;
-    
+
     bool *B = new bool[n];
     ulong sum=0,i;
     /*
@@ -38,13 +38,13 @@ CSA::THuffAlphabetRank::THuffAlphabetRank(uchar *s, ulong n, TCodeEntry *codetab
        printf("%c:", (char)((int)s[i]-128));
        for (r=0;r<codetable[(int)s[i]].bits;r++)
           if (codetable[(int)s[i]].code & (1u <<r))
-	     printf("1");
-	  else printf("0");
-       printf("\n");	  
+         printf("1");
+      else printf("0");
+       printf("\n");
     }
     printf("\n");
     if (level > 100) return;*/
-    for (i=0;i<n;i++) 
+    for (i=0;i<n;i++)
        if (codetable[(int)s[i]].code & (1u << level)) {
           B[i] = true;
           sum++;
@@ -52,13 +52,13 @@ CSA::THuffAlphabetRank::THuffAlphabetRank(uchar *s, ulong n, TCodeEntry *codetab
        else B[i] = false;
     if (sum==0 || sum==n) {
         delete [] B;
-	leaf = true;
+    leaf = true;
         return;
-    } 
+    }
     uchar *sfirst, *ssecond;
-    //if (n-sum > 0)  
+    //if (n-sum > 0)
         sfirst = new uchar[n-sum];
-    //if (sum > 0) 
+    //if (sum > 0)
         ssecond = new uchar[sum];
     unsigned j=0,k=0;
     for (i=0;i<n;i++)
@@ -66,15 +66,15 @@ CSA::THuffAlphabetRank::THuffAlphabetRank(uchar *s, ulong n, TCodeEntry *codetab
         else sfirst[j++] = s[i];
     ulong *Binbits = new ulong[n/W+1];
     for (i=0;i<n;i++)
-        Tools::SetField(Binbits,1,i,B[i]); 
+        Tools::SetField(Binbits,1,i,B[i]);
     delete [] B;
     bitrank = new BitRank(Binbits,n,true);
-    //if (j > 0) { 
-        left = new THuffAlphabetRank(sfirst,j,codetable,level+1); 
+    //if (j > 0) {
+        left = new THuffAlphabetRank(sfirst,j,codetable,level+1);
         delete [] sfirst;
     //}
     //if (k>0) {
-        right = new THuffAlphabetRank(ssecond,k,codetable,level+1); 
+        right = new THuffAlphabetRank(ssecond,k,codetable,level+1);
         delete [] ssecond;
     //}
 }
@@ -91,16 +91,16 @@ bool CSA::THuffAlphabetRank::Test(uchar *s, ulong n) {
         C[(int)s[i]]++;
         if (C[(int)s[i]] != (int)rank((int)s[i],i)) {
         correct = false;
-        printf("%d (%c): %d<>%d\n",i,(int)s[i]-128,C[(int)s[i]],(int)rank((int)s[i],i)); 
-        }         
+        printf("%d (%c): %d<>%d\n",i,(int)s[i]-128,C[(int)s[i]],(int)rank((int)s[i],i));
+        }
     }
-    return correct;            
+    return correct;
 }
 
 CSA::THuffAlphabetRank::~THuffAlphabetRank() {
     if (left!=NULL) delete left;
     if (right!=NULL) delete right;
-    if (bitrank!=NULL)   
+    if (bitrank!=NULL)
         delete bitrank;
 }
 
@@ -127,25 +127,25 @@ CSA::CSA(uchar *text, ulong n, unsigned samplerate, const char *loadFromFile, co
     for (i=0;i<n;++i)
         C[(int)bwt[i]]++;
     for (i=0;i<256;i++)
-        if (C[i]>0) {min = i; break;}          
+        if (C[i]>0) {min = i; break;}
     for (i=255;i>=min;--i)
-        if (C[i]>0) {max = i; break;}                    
+        if (C[i]>0) {max = i; break;}
     ulong prev=C[0], temp;
     C[0]=0;
-    for (i=1;i<256;i++) {          
+    for (i=1;i<256;i++) {
         temp = C[i];
         C[i]=C[i-1]+prev;
         prev = temp;
     }
     this->codetable = node::makecodetable(bwt,n);
-    alphabetrank = new THuffAlphabetRank(bwt,n, this->codetable,0);   
-    //if (alphabetrank->Test(bwt,n)) printf("alphabetrank ok\n");    
+    alphabetrank = new THuffAlphabetRank(bwt,n, this->codetable,0);
+    //if (alphabetrank->Test(bwt,n)) printf("alphabetrank ok\n");
     delete [] bwt;
 
     // Make tables
     maketables();
     // to avoid running out of unsigned, the sizes are computed in specific order (large/small)*small
-    // |class CSA| +256*|TCodeEntry|+|C[]|+|suffixes[]+positions[]|+...       
+    // |class CSA| +256*|TCodeEntry|+|C[]|+|suffixes[]+positions[]|+...
     //printf("FMindex takes %d B\n",
     //    6*W/8+256*3*W/8+256*W/8+ (2*n/(samplerate*8))*W+sampled->SpaceRequirementInBits()/8+alphabetrank->SpaceRequirementInBits()/8+W/8);
 }
@@ -153,13 +153,13 @@ CSA::CSA(uchar *text, ulong n, unsigned samplerate, const char *loadFromFile, co
 ulong CSA::lookup(ulong i) // Time complexity: O(samplerate log \sigma)
 {
     ulong dist=0;
-    while (!sampled->IsBitSet(i)) 
+    while (!sampled->IsBitSet(i))
     {
         int c = alphabetrank->charAtPos(i);
-        i = C[c]+alphabetrank->rank(c,i)-1; // LF-mapping  
+        i = C[c]+alphabetrank->rank(c,i)-1; // LF-mapping
         ++dist;
     }
-    
+
     return suffixes[sampled->rank(i)-1]+dist;
 }
 
@@ -169,13 +169,13 @@ ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
     if (lookup(i) == n - 1)
         return 0;
 
-    // Search sampled position so that SA[j] less than or equal to SA[i]    
+    // Search sampled position so that SA[j] less than or equal to SA[i]
     int c;
     unsigned j = i;
-    while (!sampled->IsBitSet(j)) 
+    while (!sampled->IsBitSet(j))
     {
         c = alphabetrank->charAtPos(j);
-        j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping  
+        j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping
     }
 
     // Move to j =  inverse SA[ SA[j] + samplerate ]
@@ -184,14 +184,14 @@ ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
         j = bwtEndPos;
     else
         j = positions[suffixes[sampled->rank(j)-1] / samplerate + 1];
-    
+
     // Search position SA[prev] = SA[i] + 1
     unsigned prev;
     do
     {
         prev = j;
         c = alphabetrank->charAtPos(j);
-        j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping  
+        j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping
     } while (j != i);
 
     // Return the previous j value prev
@@ -207,7 +207,7 @@ uchar * CSA::substring(ulong i, ulong l)
         result[0] = 0u;
         return result;
     }
-      
+
     ulong dist;
     ulong k = i + l - 1;
     // Check for end of the string
@@ -216,7 +216,7 @@ uchar * CSA::substring(ulong i, ulong l)
         l -= k - n + 1;
         k = n - 1;
     }
-    
+
     ulong skip = samplerate - k % samplerate - 1;
     ulong j;
     if (k / samplerate + 1 >= n / samplerate)
@@ -227,10 +227,10 @@ uchar * CSA::substring(ulong i, ulong l)
     else
     {
         j = positions[k/samplerate+1];
-        //cout << samplerate << ' ' << j << '\n';	
-    }    
-    
-    for (dist = 0; dist < skip + l; dist++) 
+        //cout << samplerate << ' ' << j << '\n';
+    }
+
+    for (dist = 0; dist < skip + l; dist++)
     {
         int c = alphabetrank->charAtPos(j);
         j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping
@@ -253,9 +253,9 @@ ulong CSA::inverse(ulong i)
     else
     {
         j = positions[i/samplerate+1];
-        //cout << samplerate << ' ' << j << '\n';   
-    }    
-    
+        //cout << samplerate << ' ' << j << '\n';
+    }
+
     while (skip > 0)
     {
         int c = alphabetrank->charAtPos(j);
@@ -267,11 +267,11 @@ ulong CSA::inverse(ulong i)
 
 ulong CSA::Search(uchar *pattern, ulong m, ulong *spResult, ulong *epResult) {
     // use the FM-search replacing function Occ(c,1,i) with alphabetrank->rank(c,i)
-    int c = (int)pattern[m-1]; 
+    int c = (int)pattern[m-1];
     int i=m-1;
     int sp = C[c];
     int ep = C[c+1]-1;
-    while (sp<=ep && i>=1) 
+    while (sp<=ep && i>=1)
     {
         c = (int)pattern[--i];
         sp = C[c]+alphabetrank->rank(c,sp-1);
@@ -286,7 +286,7 @@ ulong CSA::Search(uchar *pattern, ulong m, ulong *spResult, ulong *epResult) {
 }
 
 CSA::~CSA() {
-    delete alphabetrank;       
+    delete alphabetrank;
     delete sampled;
     delete [] suffixes;
     delete [] positions;
@@ -297,15 +297,15 @@ CSA::~CSA() {
 void CSA::maketables()
 {
     ulong sampleLength = (n%samplerate==0) ? n/samplerate : n/samplerate+1;
-   
+
     ulong *sampledpositions = new ulong[n/W+1];
-    suffixes = new ulong[sampleLength];   
+    suffixes = new ulong[sampleLength];
     positions = new ulong[sampleLength];
-   
+
     ulong i,j=0;
     for (i=0;i<n/W+1;i++)
         sampledpositions[i]=0lu;
-    
+
     ulong x,p=bwtEndPos;
     ulong ulongmax = 0;
     ulongmax--;
@@ -328,8 +328,8 @@ void CSA::maketables()
 
 //      printf("Sampled positions:\n0123456789012345678901234567890123456789\n");
 //      Tools::PrintBitSequence(sampledpositions,n);
-    sampled = new BitRank(sampledpositions,n,true);   
-   
+    sampled = new BitRank(sampledpositions,n,true);
+
 /*     printf("Is bit set test:\n");
     for (i = 0; i< n; i++)
     if ((*sampled)->IsBitSet(i))
@@ -337,14 +337,14 @@ void CSA::maketables()
     else
     printf("0");
     printf("\n");*/
-    
-   //suffixes:   
+
+   //suffixes:
     for(i=0; i<sampleLength; i++) {
         j = sampled->rank(positions[i]);
         if (j==0) j=sampleLength;
         suffixes[ j-1] = (i*samplerate==n)?0:i*samplerate;
 //         printf("suffixes[%lu] = %lu\n", j-1, (i*samplerate==n)?0:i*samplerate);
-    }   
+    }
 }
 
 uchar * CSA::LoadFromFile(const char *filename)
@@ -360,7 +360,7 @@ uchar * CSA::LoadFromFile(const char *filename)
             file.read((char *)(s + offset), sizeof(char));
         file.close();
     }
-    else 
+    else
     {
         std::cerr << "Unable to open file " << filename << std::endl;
         exit(1);
@@ -380,7 +380,7 @@ void CSA::SaveToFile(const char *filename, uchar *bwt)
             file.write((char *)(bwt + offset), sizeof(char));
         file.close();
     }
-    else 
+    else
     {
         std::cerr << "Unable to open file " << filename << std::endl;
         exit(1);
@@ -388,13 +388,13 @@ void CSA::SaveToFile(const char *filename, uchar *bwt)
 }
 
 
-uchar * CSA::BWT(uchar *text) 
+uchar * CSA::BWT(uchar *text)
 {
     uchar *s;
 
     DynFMI *wt = new DynFMI((uchar *) text, n);
     s = wt->getBWT();
-    for (ulong i=0;i<n;i++) 
+    for (ulong i=0;i<n;i++)
         if (s[i]==0u) {
             bwtEndPos = i;  // TODO: better solution ?
             i=n;
@@ -409,7 +409,7 @@ uchar * CSA::BWT(uchar *text)
 CSA::TCodeEntry * CSA::node::makecodetable(uchar *text, ulong n)
 {
     TCodeEntry *result = new TCodeEntry[ 256 ];
-    
+
     count_chars( text, n, result );
     std::priority_queue< node, std::vector< node >, std::greater<node> > q;
 //
@@ -445,16 +445,16 @@ CSA::TCodeEntry * CSA::node::makecodetable(uchar *text, ulong n)
 
 void CSA::node::maketable(unsigned code, unsigned bits, TCodeEntry *codetable) const
 {
-    if ( child0 ) 
+    if ( child0 )
     {
         child0->maketable( SetBit(code,bits,0), bits+1, codetable );
         child1->maketable( SetBit(code,bits,1), bits+1, codetable );
         delete child0;
         delete child1;
-    } 
-    else 
+    }
+    else
     {
-        codetable[value].code = code;    
+        codetable[value].code = code;
         codetable[value].bits = bits;
     }
 }
@@ -465,7 +465,7 @@ void CSA::node::count_chars(uchar *text, ulong n, TCodeEntry *counts )
     for (i = 0 ; i < 256 ; i++ )
         counts[ i ].count = 0;
     for (i=0; i<n; i++)
-        counts[(int)text[i]].count++; 
+        counts[(int)text[i]].count++;
 }
 
 unsigned CSA::node::SetBit(unsigned x, unsigned pos, unsigned bit) {

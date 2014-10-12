@@ -42,18 +42,18 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
 //         trmq = new TRMQ(br, n);
         printf("n = %lu, sampleRate = %d, subSampleRate = %d, blockSampleRate = %d\n", n, sampleRate, subSampleRate, blockSampleRate);
     #endif
-    
+
     // Array M[i, k]
     // Size of the array is  (n / sampleRate) * \ceil(\log(n / sampleRate)) * W  bits
     widthM = Tools::CeilLog2(n / sampleRate + 1);
-    M = new ulong[(n / sampleRate + 1) * widthM];  
+    M = new ulong[(n / sampleRate + 1) * widthM];
     #ifdef DEBUG_CRMQ
         printf("Allocated %lu bytes for %lu x %d array M.\n", (n / sampleRate + 1) * widthM, n / sampleRate + 1, widthM);
     #endif
-    
+
     // Array M_j[i, k]
-    // Size of the array is  
-    // 
+    // Size of the array is
+    //
     // (n / sampleRate) * (sampleRate / subSampleRate) * \ceil(\log(sampleRate / subSampleRate)) * \ceil(\log(sampleRate / subSampleRate))  bits
     //
     widthSubM = Tools::CeilLog2(sampleRate / subSampleRate + 1);
@@ -61,7 +61,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
     #ifdef DEBUG_CRMQ
         printf("Allocated %lu bits in %lu bytes for %lu x %d x %d array M_j. (%d bits per cell)\n", (n / sampleRate + 1) * (sampleRate / subSampleRate) * widthSubM * widthSubM, ((n / sampleRate + 1) * (sampleRate / subSampleRate) * widthSubM * widthSubM) / W + 1, n / sampleRate + 1, sampleRate / subSampleRate, widthSubM, widthSubM);
     #endif
-    
+
     // Init dynamic programming for subblocks
     for (ulong j = 0; j < n/sampleRate + 1; j++)
         for (ulong i = 0; i < sampleRate/subSampleRate; i++)
@@ -82,7 +82,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
                     // Get indexes inside subblocks
                     ulong index1 = GetSubblockIndex(j, GetSubM(j, i, k - 1));
                     ulong index2 = GetSubblockIndex(j, GetSubM(j, i + (1 << (k - 1)), k - 1));
-                    
+
                     if (index1 >= n)
                         index1 = n - 1;
                     if (index2 >= n)
@@ -105,7 +105,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
         #endif
         M[i * widthM] = lookupSub(i, 0, sampleRate - 1);
     }
-    
+
     // Calculate blocks
     for (unsigned k = 1; k < widthM; k++)
         for (ulong i = 0; i < n/sampleRate + 1; i++)
@@ -115,7 +115,7 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
                     M[i * widthM + k] = M[i * widthM + k - 1];
                 else
                     M[i * widthM + k] = M[(i + (1 << (k - 1))) * widthM + k - 1];
-                
+
                 #ifdef DEBUG_CRMQ
                     printf("Setting M[%lu, %d] = min([%lu, %d], [%lu, %d]) = %lu\n", i, k, i, k - 1, i + (1 << (k - 1)), k - 1, M[i * widthM + k]);
                 #endif
@@ -148,8 +148,8 @@ CRMQ::CRMQ(BitRank *br, ulong *P, ulong n, unsigned sampleRate, unsigned subSamp
                         }
                     }
         }
-    
-    
+
+
         printf("Result:\n");
         for (ulong j = 0; j < n/sampleRate + 1; j++)
             for (ulong i = 0; i < sampleRate/subSampleRate; i++)
@@ -182,13 +182,13 @@ ulong CRMQ::lookup(ulong v, ulong w) const
         v = w;
         w = temp;
     }
-    
+
     ulong x = v / sampleRate,
           y = w / sampleRate;
     ulong minM = ~0, indexM = 0,          // Minimum value/index of blocks between x and y
           minStart, indexStart,   // Minimum values/indexes of start and end blocks
           minEnd, indexEnd;
-    
+
     #ifdef DEBUG_CRMQ
         printf("x = %lu, y = %lu\n", x, y);
     #endif
@@ -211,13 +211,13 @@ ulong CRMQ::lookup(ulong v, ulong w) const
             minM = valueY;
             indexM = M[(y - (1 << k)) * widthM + k];
         }
-    
+
         #ifdef DEBUG_CRMQ
             printf("minM = %lu, indexM = %lu\n", minM, indexM);
         #endif
     }
 
-    // Find minimum values for start and end blocks x and y    
+    // Find minimum values for start and end blocks x and y
     if (x != y)
     {
         indexStart = lookupSub(x, v % sampleRate, sampleRate - 1);
@@ -225,13 +225,13 @@ ulong CRMQ::lookup(ulong v, ulong w) const
         #ifdef DEBUG_CRMQ
             printf("lookupSub(%lu, %lu, %d) = %lu (value = %lu)\n", x, v % sampleRate, sampleRate - 1, indexStart, minStart);
         #endif
-        
+
         indexEnd = lookupSub(y, 0, w % sampleRate);
         minEnd = GetValue(indexEnd);
         #ifdef DEBUG_CRMQ
             printf("lookupSub(%lu, %d, %lu) = %lu (value = %lu)\n", y, 0, w % sampleRate, indexEnd, minEnd);
         #endif
-        
+
         ulong returnIndex, returnValue;
         if (minStart <= minEnd)
         {
@@ -243,16 +243,16 @@ ulong CRMQ::lookup(ulong v, ulong w) const
             returnIndex = indexEnd;
             returnValue = minEnd;
         }
-        
+
         if (y - x <= 1)
             return returnIndex;
-        
+
         if (returnValue < minM)
             return returnIndex;
-        
+
         return indexM;
     }
-    
+
     #ifdef DEBUG_CRMQ
         printf("lookSub(%lu, %lu, %lu) (inside block)\n", x, v % sampleRate, w % sampleRate);
     #endif
@@ -260,35 +260,32 @@ ulong CRMQ::lookup(ulong v, ulong w) const
 }
 
 ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
-{    
+{
     if (v >= sampleRate)
         v = sampleRate - 1;
     if (w >= sampleRate)
         w = sampleRate - 1;
-    
+
     if (v > w)
     {
         unsigned temp = v;
         v = w;
         w = temp;
-    }   
-    
+    }
+
     if (block * sampleRate + v >= n)
-        return n - 1;        
+        return n - 1;
     if (block * sampleRate + w >= n)
         w = n % sampleRate;
     if (v == w)
         return block * sampleRate + v;
-    
-    
-    ulong x = v / subSampleRate,
-          y = w / subSampleRate;
+
+    ulong x = v / subSampleRate;
+    ulong y = w / subSampleRate;
     ulong minSubM = ~0, indexSubM = 0,    // Minimum value/index of subblocks between x and y
           minStart, indexStart,   // Minimum values/indexes of start and end subblocks
           minEnd, indexEnd;
 
-    
-              
     #ifdef DEBUG_CRMQ
         printf("block = %lu, x = %lu, y = %lu\n", block, x, y);
     #endif
@@ -318,7 +315,7 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
             minSubM = valueY;
             indexSubM = indexY;
         }
-    
+
         #ifdef DEBUG_CRMQ
             printf("minSubM = %lu, indexSubM = %lu\n", minSubM, indexSubM);
         #endif
@@ -330,7 +327,7 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
         #ifdef DEBUG_CRMQ
             printf("Calculating RMQ(%lu, %lu) (%lu, %lu, %lu) (%lu, %lu)\n",   v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate, block, v, w, x, y);
         #endif
-        
+
         indexStart = lookupSubblock(block, x, v % subSampleRate, subSampleRate - 1);
         if (indexStart > n - 1)
             indexStart = n - 1;
@@ -338,14 +335,14 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
         #ifdef DEBUG_CRMQ
             printf("GetField from P index %lu\n", block * sampleRate / subSampleRate + x);
             printf("SubblockRMQ(%lu, %lu, %d) = %lu (value = %lu)\n", Tools::GetField(P, subSampleRate, block * sampleRate / subSampleRate + x), v % subSampleRate, subSampleRate - 1, indexStart, minStart);
-        
+
             /*if (indexStart != trmq->lookup(v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate))
             {
                 printf("Error in subblock RMQ(%lu, %lu) = %lu\n",   v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate, trmq->lookup(v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate));
                 exit(0);
             }*/
         #endif
-            
+
         indexEnd = lookupSubblock(block, y, 0, w % subSampleRate);
         if (indexStart > n - 1)
             indexStart = n - 1;
@@ -353,7 +350,7 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
         #ifdef DEBUG_CRMQ
             printf("In subblock RMQ(%lu, %lu) = %lu (value = %lu)\n", y * subSampleRate + block * sampleRate, w + block * sampleRate, indexEnd, minEnd);
         #endif
-        
+
         ulong returnIndex, returnValue;
         if (minStart <= minEnd)
         {
@@ -365,19 +362,19 @@ ulong CRMQ::lookupSub(ulong block, ulong v, ulong w) const
             returnIndex = indexEnd;
             returnValue = minEnd;
         }
-        
+
         if (y - x <= 1)
             return returnIndex;
-        
+
         if (returnValue < minSubM)
             return returnIndex;
-        
+
         if (returnValue == minSubM && returnIndex < indexSubM)
             return returnIndex;
-            
+
         return indexSubM;
     }
-    
+
     #ifdef DEBUG_CRMQ
         printf("In subblock RMQ(%lu, %lu) (inside subblock)\n", v + block * sampleRate, w + block * sampleRate);
     #endif
@@ -393,11 +390,11 @@ ulong CRMQ::lookupSubblock(ulong block, ulong subblock, ulong v, ulong w) const
     ulong minSubblock = ~0, indexSubblock = 0,    // Minimum value/index of subblocks between x and y
           minStart, indexStart,   // Minimum values/indexes of start and end subblocks
           minEnd, indexEnd;
-    
+
     #ifdef DEBUG_CRMQ
         printf("block = %lu, subblock = %lu, x = %lu, y = %lu\n", block, subblock, x, y);
     #endif
-    
+
     // Find minimum in subblocks between x and y
     if (y - x > 1)
     {
@@ -429,10 +426,10 @@ ulong CRMQ::lookupSubblock(ulong block, ulong subblock, ulong v, ulong w) const
     if (x != y)
     {
         #ifdef DEBUG_CRMQ
-            
+
             //printf("Calculating RMQ(%lu, %lu) (%lu, %lu, %lu) (%lu, %lu)\n",   v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate, block, v, w, x, y);
         #endif
-        
+
         indexStart = srmq->lookup(Tools::GetField(P, blockSampleRate, block * sampleRate / blockSampleRate + subblock * subSampleRate / blockSampleRate + x), v % blockSampleRate, blockSampleRate - 1) + block * sampleRate + subblock * subSampleRate + x * blockSampleRate;
         if (indexStart > n - 1)
             indexStart = n - 1;
@@ -440,14 +437,14 @@ ulong CRMQ::lookupSubblock(ulong block, ulong subblock, ulong v, ulong w) const
         #ifdef DEBUG_CRMQ
             /*printf("GetField from P index %lu\n", block * sampleRate / subSampleRate + x);
             printf("SubblockRMQ(%lu, %lu, %lu) = %lu (value = %lu)\n", Tools::GetField(P, subSampleRate, block * sampleRate / subSampleRate + x), v % subSampleRate, subSampleRate - 1, indexStart, minStart);
-        
+
             if (indexStart != trmq->lookup(v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate))
             {
                 printf("Error in subblock RMQ(%lu, %lu) = %lu\n",   v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate, trmq->lookup(v + block * sampleRate, (x + 1) * subSampleRate - 1 + block * sampleRate));
                 exit(0);
             }*/
         #endif
-            
+
         indexEnd = srmq->lookup(Tools::GetField(P, blockSampleRate, block * sampleRate / blockSampleRate + subblock * subSampleRate / blockSampleRate + y), 0, w % blockSampleRate) + block * sampleRate + subblock * subSampleRate + y * blockSampleRate;
         if (indexStart > n - 1)
             indexStart = n - 1;
@@ -455,7 +452,7 @@ ulong CRMQ::lookupSubblock(ulong block, ulong subblock, ulong v, ulong w) const
         #ifdef DEBUG_CRMQ
             //printf("In subblock RMQ(%lu, %lu) = %lu (value = %lu)\n", y * subSampleRate + block * sampleRate, w + block * sampleRate, indexEnd, minEnd);
         #endif
-        
+
         ulong returnIndex, returnValue;
         if (minStart <= minEnd)
         {
@@ -467,22 +464,22 @@ ulong CRMQ::lookupSubblock(ulong block, ulong subblock, ulong v, ulong w) const
             returnIndex = indexEnd;
             returnValue = minEnd;
         }
-        
+
         if (y - x <= 1)
             return returnIndex;
-        
+
         if (returnValue < minSubblock)
             return returnIndex;
-        
+
         if (returnValue == minSubblock && returnIndex < indexSubblock)
             return returnIndex;
-            
+
         return indexSubblock;
     }
-    
+
     #ifdef DEBUG_CRMQ
         //printf("In subblock RMQ(%lu, %lu) (inside subblock)\n", v + block * sampleRate, w + block * sampleRate);
     #endif
     return srmq->lookup(Tools::GetField(P, blockSampleRate, block * sampleRate / blockSampleRate + subblock * subSampleRate / blockSampleRate + x), v % blockSampleRate, w % blockSampleRate) + block * sampleRate + subblock * subSampleRate + x * blockSampleRate;
 }
-   
+

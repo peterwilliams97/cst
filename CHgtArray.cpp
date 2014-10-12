@@ -24,7 +24,7 @@
 CHgtArray::CHgtArray(CSA *csa, const uchar *text, ulong n)
 {
     this->csa = csa;
-    
+
     ulong i;
     this->n = n;
     HgtBits = new ulong[2 * n / W + 1];
@@ -37,23 +37,23 @@ CHgtArray::CHgtArray(CSA *csa, const uchar *text, ulong n)
     {
         if (lcp > 0)
             lcp--;
-        
+
         ulong j = csa->inverse(i);
         if (j == n - 1)
             lcp = 0; // Hgt[n] = 0
         else
         {
-            j = csa->lookup(j + 1);  
+            j = csa->lookup(j + 1);
             while (text[i + lcp] == text[j + lcp] && text[i + lcp] != '\0')
                 lcp++;
         }
-        
+
         k += lcp - prev + 1;
         Tools::SetField(HgtBits, 1, k, 1);
         k++;
-        prev = lcp;        
+        prev = lcp;
     }
-    
+
     this->Hgt = new BitRank(HgtBits, 2 * n, true);
 }
 
@@ -71,7 +71,7 @@ CHgtArray::CHgtArray(CSA *csa, const char *filename)
             file.read((char *)(HgtBits + offset), sizeof(ulong));
         file.close();
     }
-    else 
+    else
     {
         std::cout << "Unable to open file " << filename << std::endl;
         exit(1);
@@ -93,7 +93,7 @@ void CHgtArray::SaveToFile(const char *filename)
             file.write((char *)(HgtBits + offset), sizeof(ulong));
         file.close();
     }
-    else 
+    else
     {
         std::cout << "Unable to open file " << filename << std::endl;
         exit(1);

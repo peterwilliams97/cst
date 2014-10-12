@@ -18,6 +18,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
  ***************************************************************************/
 
+#include <math.h>
 #include "LcpToParentheses.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ LcpToParentheses::DeltaArray::DeltaArray(ulong size)
     // pathological cases size should be 7*size 
     // this is taken into account when startPos gets too small:
     // the memory size is doubled
-    this->size = size / ((ulong)log2(size)*(ulong)log2(size));
+    this->size = size / ((ulong)log2(size) * (ulong)log2(size));
     if (this->size < 1024) this->size = 1024;
     A = new ulong[this->size / W + 1];
     startPos = this->size - 1;
@@ -35,7 +36,7 @@ LcpToParentheses::DeltaArray::DeltaArray(ulong size)
 
 LcpToParentheses::DeltaArray::~DeltaArray()
 {
-    delete [] A;
+    delete[] A;
 }
 
 void LcpToParentheses::DeltaArray::Add(ulong value)

@@ -32,7 +32,7 @@ private:
     private:
         ulong *A;
         ulong startPos;
-	ulong size; 
+    ulong size;
     public:
         DeltaArray(ulong);
         ~DeltaArray();

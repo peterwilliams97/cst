@@ -23,7 +23,7 @@ typedef uint handle;
 hash createHash (uint n, uint vbits, float factor);
   // frees the structure
 void destroyHash (hash H);
-  // inserts an entry 
+  // inserts an entry
 void insertHash (hash H, uint key, uint elem);
   // looks for a key, returns first value (zero => no values)
   // writes in pos a handle to get next values
@@ -42,14 +42,14 @@ class Hash
 private:
     ulong size;
     unsigned bits;
-    ulong* table;    
+    ulong* table;
 
 public:
     Hash (ulong n, unsigned vbits, double factor);
     ~Hash();
     void insertHash(ulong, ulong);
-    unsigned searchHash (ulong key, ulong *h);
-    unsigned nextHash (ulong *h);
+    unsigned searchHash(ulong key, ulong *h);
+    unsigned nextHash(ulong *h);
 };
 
 #endif
