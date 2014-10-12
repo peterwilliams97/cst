@@ -174,7 +174,7 @@ ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
     while (!sampled->IsBitSet(j))
     {
         c = alphabetrank->charAtPos(j);
-        j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping
+        j = C[c]+alphabetrank->rank(c, j)-1; // LF-mapping
     }
 
     // Move to j =  inverse SA[ SA[j] + samplerate ]
@@ -197,9 +197,7 @@ ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
     return prev;
 }
 
-
-uchar * CSA::substring(ulong i, ulong l)
-{
+uchar *CSA::substring(ulong i, ulong l) {
     uchar *result = new uchar[l + 1];
     if (l == 0)
     {
@@ -225,7 +223,7 @@ uchar * CSA::substring(ulong i, ulong l)
     }
     else
     {
-        j = positions[k/samplerate+1];
+        j = positions[k / samplerate + 1];
         //cout << samplerate << ' ' << j << '\n';
     }
 
@@ -240,8 +238,8 @@ uchar * CSA::substring(ulong i, ulong l)
     return result;
 }
 
-ulong CSA::inverse(ulong i)
-{
+ulong CSA::inverse(ulong i) {
+
     ulong skip = samplerate - i % samplerate;
     ulong j;
     if (i / samplerate + 1 >= n / samplerate)
@@ -251,14 +249,14 @@ ulong CSA::inverse(ulong i)
     }
     else
     {
-        j = positions[i/samplerate+1];
+        j = positions[i / samplerate + 1];
         //cout << samplerate << ' ' << j << '\n';
     }
 
     while (skip > 0)
     {
         int c = alphabetrank->charAtPos(j);
-        j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping
+        j = C[c] + alphabetrank->rank(c, j) - 1; // LF-mapping
         skip --;
     }
     return j;
@@ -266,8 +264,8 @@ ulong CSA::inverse(ulong i)
 
 ulong CSA::Search(uchar *pattern, ulong m, ulong *spResult, ulong *epResult) {
     // use the FM-search replacing function Occ(c,1,i) with alphabetrank->rank(c,i)
-    int c = (int)pattern[m-1];
-    int i=m-1;
+    int c = (int)pattern[m - 1];
+    int i = m - 1;
     int sp = C[c];
     int ep = C[c+1]-1;
     while (sp<=ep && i>=1)
@@ -312,7 +310,7 @@ void CSA::maketables()
    //positions:
     for (i=n-1;i<ulongmax;i--) { // TODO bad solution with ulongmax?
       // i substitutes SA->GetPos(i)
-        x=(i==n-1)?0:i+1;
+        x = (i==n-1) ? 0 : i + 1;
 
         if (x % samplerate == 0) {
             Tools::SetField(sampledpositions,1,p,1);
@@ -322,7 +320,7 @@ void CSA::maketables()
 
         //p= wt->LFmapping(p+1)-1;
         uchar c = alphabetrank->charAtPos(p);
-        p = C[c]+alphabetrank->rank(c, p)-1;
+        p = C[c] + alphabetrank->rank(c, p) - 1;
     }
 
 //      printf("Sampled positions:\n0123456789012345678901234567890123456789\n");
@@ -346,7 +344,7 @@ void CSA::maketables()
     }
 }
 
-uchar * CSA::LoadFromFile(const char *filename)
+uchar *CSA::LoadFromFile(const char *filename)
 {
     uchar *s;
     std::ifstream file (filename, ios::in|ios::binary);
@@ -386,8 +384,7 @@ void CSA::SaveToFile(const char *filename, uchar *bwt)
     }
 }
 
-
-uchar * CSA::BWT(uchar *text)
+uchar *CSA::BWT(uchar *text)
 {
     uchar *s;
 
@@ -396,18 +393,16 @@ uchar * CSA::BWT(uchar *text)
     for (ulong i=0;i<n;i++)
         if (s[i]==0u) {
             bwtEndPos = i;  // TODO: better solution ?
-            i=n;
+            i = n;
         }
 
     delete wt;
     return s;
 }
 
-
-
-CSA::TCodeEntry * CSA::node::makecodetable(uchar *text, ulong n)
+CSA::TCodeEntry *CSA::node::makecodetable(uchar *text, ulong n)
 {
-    TCodeEntry *result = new TCodeEntry[ 256 ];
+    TCodeEntry *result = new TCodeEntry[256];
 
     count_chars( text, n, result );
     std::priority_queue< node, std::vector< node >, std::greater<node> > q;
@@ -426,7 +421,6 @@ CSA::TCodeEntry * CSA::node::makecodetable(uchar *text, ulong n)
 // is only one node in the priority queue, the tree
 // is complete.
 //
-
     while ( q.size() > 1 ) {
         node *child0 = new node( q.top() );
         q.pop();
@@ -437,7 +431,7 @@ CSA::TCodeEntry * CSA::node::makecodetable(uchar *text, ulong n)
 //
 // Now I compute and return the codetable
 //
-    q.top().maketable(0u,0u, result);
+    q.top().maketable(0u, 0u, result);
     q.pop();
     return result;
 }
@@ -445,8 +439,8 @@ CSA::TCodeEntry * CSA::node::makecodetable(uchar *text, ulong n)
 void CSA::node::maketable(uint code, uint bits, TCodeEntry *codetable) const
 {
     if (child0) {
-        child0->maketable( SetBit(code,bits,0), bits+1, codetable );
-        child1->maketable( SetBit(code,bits,1), bits+1, codetable );
+        child0->maketable(SetBit(code, bits, 0), bits + 1, codetable);
+        child1->maketable(SetBit(code, bits, 1), bits + 1, codetable);
         delete child0;
         delete child1;
     }
@@ -467,5 +461,5 @@ void CSA::node::count_chars(uchar *text, ulong n, TCodeEntry *counts )
 }
 
 uint CSA::node::SetBit(uint x, uint pos, uint bit) {
-      return x | (bit << pos);
+    return x | (bit << pos);
 }

@@ -142,16 +142,16 @@ ulong BitRank::BuildRankSub(ulong ini, ulong bloques){
      return rank; //return the numbers of 1's in the interval
 }
 
-
 //this rank ask from 0 to n-1
 ulong BitRank::rank(ulong i) {
     ++i; // the following gives sum of 1s before i
-    if (rp == 0) return Rs[i>>8]+Rb[i>>wordShift]
-        +popcount(data[i >> wordShift] & ((1lu << (i & Wminusone))-1));
+    if (rp == 0) { 
+        return Rs[i >> 8] + Rb[i >> wordShift]
+             + popcount(data[i >> wordShift] & ((1lu << (i & Wminusone)) - 1));
+    }
 
     ulong result = rp->returnWord(data, (i >> wordShift) << wordShift, n);
-    result = Rs[i>>8]+Rb[i>>wordShift]
-        +popcount(result & ((1lu << (i & Wminusone))-1));
+    result = Rs[i >> 8] + Rb[i >> wordShift] + popcount(result & ((1lu << (i & Wminusone)) - 1));
     return result;
 }
 
@@ -163,10 +163,11 @@ ulong BitRank::select(ulong x) {
     // then sequential search bit a bit
 
     //binary search over first level rank structure
-    if (x == 0)
+    if (x == 0) {
         return 0;
+    }
 
-    ulong l=0, r=n/s;
+    ulong l = 0, r = n / s;
     ulong mid = (l + r) / 2;
     ulong rankmid = Rs[mid];
     while (l <= r) {
@@ -306,7 +307,6 @@ ulong BitRank::select0(ulong x) {
     }
     return left - 1;
 }
-
 
 bool BitRank::IsBitSet(ulong i) {
     return ((1lu << (i % W)) & data[i / W]) ? true : false;

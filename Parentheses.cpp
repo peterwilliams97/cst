@@ -277,7 +277,7 @@ void Parentheses::bcompchar(uchar x, uchar *pos) {
 // the position of the closing parenthesis corresponding to (opening)
 // parenthesis at position i
 
-ulong Parentheses::findclose (ulong i) {
+ulong Parentheses::findclose(ulong i) {
     ulong bitW;
     ulong len,res,minres,exc;
     uchar W1;
@@ -285,56 +285,68 @@ ulong Parentheses::findclose (ulong i) {
     ulong myexcess;
 
      // Closing parenthesis for root
-     if (i == 0)
+     if (i == 0) {
         return n - 1;
+     }
     // first see if it is at small distance
-     len = W; if (i+len >= n) len = n-i-1;
-     bitW = ~(Tools::GetVariableField(bp,len,i+1));
-     exc = 0; len = 0;
-     while (bitW && (exc < W/2))
+     len = W; if (i+len >= n) len = n - i - 1;
+     bitW = ~(Tools::GetVariableField(bp, len, i + 1));
+     exc = 0; 
+     len = 0;
+     while (bitW && (exc < W/2)) {
         // either we shift it all or it only opens parentheses or too
         // many open parentheses
-        { W1 = bitW & 255;
-          if ((res = FwdPos[W1][exc])) return i+len+res;
-          bitW >>= 8; exc += Excess[W1];
-      len += 8;
+        W1 = bitW & 255;
+        if ((res = FwdPos[W1][exc])) { 
+            return i + len + res;
+        }
+        bitW >>= 8; 
+        exc += Excess[W1];
+        len += 8;
     }
     // ok, it's not a small distance, try with hashing btable
-     minres = 0;
-     myexcess = excess (i);
-     res = bftable->searchHash (i,&h);
+    minres = 0;
+    myexcess = excess (i);
+    res = bftable->searchHash (i,&h);
     while (res) {
-        if (!minres || (res < minres))
-         if ((i+res+1 < n) && (excess(i+res+1) == myexcess))
-        minres = res;
-      res = bftable->nextHash (&h);
+        if (!minres || (res < minres)) {
+            if ((i + res + 1 < n) && (excess(i + res + 1) == myexcess)) {
+                 minres = res;
+            }
+        }
+        res = bftable->nextHash(&h);
     }
-     if (minres) return i+minres;
+    if (minres) {
+        return i + minres;
+    }
     // finally, it has to be a far pointer
      res = sftable->searchHash (i,&h);
-     while (res) { if (!minres || (res < minres))
-         if ((i+res+1 < n) && (excess(i+res+1) == myexcess))
-            minres = res;
-      res = sftable->nextHash (&h);
+     while (res) { 
+         if (!minres || (res < minres)) {
+            if ((i+res+1 < n) && (excess(i+res+1) == myexcess)) {
+                minres = res;
+            }
+         }
+      res = sftable->nextHash(&h);
     }
-     return i+minres; // there should be one if the sequence is balanced!
+     return i + minres; // there should be one if the sequence is balanced!
 }
 
 // find enclosing parenthesis for an open parenthesis
 // assumes that the parenthesis has an enclosing pair
-
-ulong Parentheses::findparent (ulong i) {
+ulong Parentheses::findparent(ulong i) {
     ulong bitW;
-     ulong len,res,minres,exc;
-     uchar W1;
-     ulong h;
-     ulong myexcess;
+    ulong len,res,minres,exc;
+    uchar W1;
+    ulong h;
+    ulong myexcess;
 
     // first see if it is at small distance
-     len = W; if (i < len) len = i-1;
-     bitW = Tools::GetVariableField (bp,len, i-len) << (W-len);
-     exc = 0; len = 0;
-     while (bitW && (exc < W/2))
+    len = W; if (i < len) len = i-1;
+    bitW = Tools::GetVariableField (bp,len, i-len) << (W-len);
+    exc = 0; 
+    len = 0;
+    while (bitW && (exc < W/2))
         // either we shift it all or it only closes parentheses or too
         // many closed parentheses
         { W1 = (bitW >> (W-8));
@@ -366,7 +378,7 @@ ulong Parentheses::findparent (ulong i) {
 
     // # open - # close at position i, not included
 
-ulong Parentheses::excess (ulong i) {
+ulong Parentheses::excess(ulong i) {
     if (i == 0) {
         return 0;
     }
@@ -375,13 +387,14 @@ ulong Parentheses::excess (ulong i) {
 
 // open position of closest parentheses pair that contains the pair
 // that opens at i, ~0 if no parent
-ulong Parentheses::enclose (ulong i) {
-  if (i == 0) return 0; // no parent!
-     if (excess(i) == 1)
+ulong Parentheses::enclose(ulong i) {
+    if (i == 0) 
+        return 0; // no parent!
+    if (excess(i) == 1)
         return 0;
-     return findparent (i);
+   return findparent (i);
 }
 
-ulong Parentheses::isOpen (ulong i) {
+ulong Parentheses::isOpen(ulong i) {
     return br->IsBitSet(i);
 }

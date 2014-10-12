@@ -25,14 +25,39 @@
 #include "Tools.h"
 using namespace std;
 
+static const char *
+alphabet = "abcdefghijklmnopqrstuvxxyz ";
+static const char *
+quick_brown = "the quick brown fox jumped over the lazy dog ";
+
 // Longest Common SubString (A,B)
-void lcss() {
+void lcss(int n_chars, int m_overlap) {
     // A=aaabbbccc, B=ccbbbaa ==> lcss(A,B)=bbb
     //const char *A = "aaabbbccc", *B = "ccbbbaa";
     //uchar *text = (uchar*)"aaabbbccc$ccbbbaa";
 
-    const char *A = "12345", *B = "3456";
-    uchar *text = (uchar *)"12345$3456";
+    //const char *A = "12345", *B = "3456";
+    //uchar *text = (uchar *)"12345$3456";
+    char *A = (char *)calloc(n_chars + 1, 1);
+    char *B = (char *)calloc(n_chars + 1, 1);
+    int n_alphabet = strlen(alphabet);
+    int n_quick_brown = strlen(quick_brown);
+    for (int i = 0; i < n_chars; i++) {
+        A[i] = alphabet[i % n_alphabet];
+        B[i] = alphabet[i % n_alphabet];
+        if (i % 10  == 0 && i > 1) {
+            B[i] = B[i - 1];
+        }
+    }
+    for (int i = 0; i < m_overlap; i++) {
+        A[i] = quick_brown[i % n_quick_brown];
+        B[i] = quick_brown[i % n_quick_brown];
+    }
+    A[m_overlap] = 'X';
+    B[m_overlap] = 'Y';
+
+    string s_text = string(A) + string("$") + string(B);
+    uchar *text = (uchar *)s_text.c_str();
 
     // One could read from file as follows:
     // uchar *text = Tools::GetFileContents("filename", maxlen);
@@ -131,7 +156,7 @@ void lcss() {
     *******************************************************************/
 
     ulong maxdepth=0, maxindex=0;
-    for (i=0; i<=lastleaf; i++) {
+    for (i = 0; i <= lastleaf; i++) {
         if (sst->isOpen(i) && left[i] && right[i] && (sst->depth(i) > maxdepth)) {
             maxdepth = sst->depth(i);
             maxindex = i;
@@ -142,7 +167,7 @@ void lcss() {
    // ulong textpos = sst->textpos(sst->firstChild(maxindex));
 
    cout << "lcss(" << A << ',' << B << ")=";
-   cout << (char*)sst->pathlabel(maxindex) << "\n\n";
+   cout << (char *)sst->pathlabel(maxindex) << "\n\n";
 
    delete sst;
    delete[] left;
@@ -150,6 +175,6 @@ void lcss() {
 }
 
 int main() {
-    lcss();
+    lcss(1000, 50);
     return 0;
 }

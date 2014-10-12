@@ -73,9 +73,9 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
     Tools::StartTimer();
 #endif
     if (IOaction == load_from && filename != NULL) {
-        _sa = new CSA(text, n, floorLog2n, (string(filename)+".csa").c_str());
+        _sa = new CSA(text, n, floorLog2n, (string(filename) + ".csa").c_str());
     } else if (IOaction == save_to && filename != 0) {
-        _sa = new CSA(text, n, floorLog2n, 0, (string(filename)+".csa").c_str());
+        _sa = new CSA(text, n, floorLog2n, 0, (string(filename) + ".csa").c_str());
     } else {// No IO operation
         _sa = new CSA(text, n, floorLog2n);
     }
@@ -92,7 +92,7 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
     Tools::StartTimer();
 #endif
     if (IOaction == load_from && filename != 0) {
-        _hgt = new CHgtArray(_sa, (string(filename)+".lcp").c_str());
+        _hgt = new CHgtArray(_sa, (string(filename) + ".lcp").c_str());
     } else {
         _hgt = new CHgtArray(_sa, text, n);
     }
@@ -350,9 +350,8 @@ uchar *SSTree::edge(ulong v) {
 /**
  * Returns the path label from root to the node v.
  */
-uchar* SSTree::pathlabel(ulong v) {
-    if (isleaf(v))
-    {
+uchar *SSTree::pathlabel(ulong v) {
+    if (isleaf(v)) {
         ulong i = leftrank(v);
         ulong k = depth(v);
         ulong d1 = _sa->lookup(i);
@@ -369,16 +368,16 @@ uchar* SSTree::pathlabel(ulong v) {
  * @param k length of the substring.
  */
 uchar *SSTree::substring(ulong i, ulong k) {
-   return _sa->substring(i,k);
+   return _sa->substring(i, k);
 }
 
 /**
  * Returns the string depth of the node v.
  */
-ulong SSTree::depth(ulong v)
-{
-    if (v == 0)
+ulong SSTree::depth(ulong v) {
+    if (v == 0) {
         return 0;
+    }
 
     if (isleaf(v)) {
         ulong i = leftrank(v);
@@ -403,13 +402,16 @@ ulong SSTree::nodeDepth(ulong v) {
  */
 ulong SSTree::lca(ulong v, ulong w)
 {
-    if (v == 0 || w == 0)
+    if (v == 0 || w == 0) {
         return 0;
+    }
 
-    if (v == w || v == root())
+    if (v == w || v == root()) {
         return v;
-    if (w == root())
+    }
+    if (w == root()) {
         return root();
+    }
 
     if (v > w) {
         ulong temp = w;
@@ -429,11 +431,11 @@ ulong SSTree::lca(ulong v, ulong w)
  *
  * Linear time solution.
  */
-ulong SSTree::lceLinear(uchar *text, ulong i, ulong j)
-{
+ulong SSTree::lceLinear(uchar *text, ulong i, ulong j) {
     ulong k = 0;
-    while (text[i+k] == text[j+k])
+    while (text[i + k] == text[j + k]) {
         k++;
+    }
 
     return k;
 }
@@ -452,8 +454,8 @@ ulong SSTree::lce(ulong i, ulong j) {
 /**
  * Suffix link for internal nodes
  */
-ulong SSTree::sl(ulong v)
-{
+ulong SSTree::sl(ulong v) {
+
     if (v == 0 || v == root() || isleaf(v)) {
         return 0;
     }
@@ -507,9 +509,12 @@ void SSTree::PrintEdge(ulong v) {
 ulong SSTree:: lcaParen(ulong v, ulong w) {
 
     ulong temp;
-    if (v < w) temp = _Pr->findclose(w);
-    else temp = _Pr->findclose(v);
-    if (v == w) return w;
+    if (v < w) 
+        temp = _Pr->findclose(w);
+    else 
+        temp = _Pr->findclose(v);
+    if (v == w) 
+        return w;
     if (v > w)
         v = w;
 
@@ -534,7 +539,8 @@ void SSTree::CheckLCA(ulong v)
         v1 = _br->select(w+1);
         while(v1 < len) {
             if (lca(temp, v1) != lcaParen(temp, v1)) {
-                printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n", temp, v1, lcaParen(temp, v1), lca(temp, v1));
+                printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n", 
+                        temp, v1, lcaParen(temp, v1), lca(temp, v1));
                 exit(0);
             }
             v1 = _br->select(_br->rank(v1) + 1);
@@ -542,7 +548,8 @@ void SSTree::CheckLCA(ulong v)
 
         // Check for the value v1 == len
         if (lca(temp, v1) != lcaParen(temp, v1)) {
-            printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n", temp, v1, lcaParen(temp, v1), lca(temp, v1));
+            printf("conflict at (%lu, %lu)::lcaParen() = %lu and lca() = %lu\n", 
+                    temp, v1, lcaParen(temp, v1), lca(temp, v1));
             exit(0);
         }
     }
@@ -551,16 +558,16 @@ void SSTree::CheckLCA(ulong v)
 /**
  * Prints edge labels of the Suffix tree
  */
-void SSTree::PrintTree(ulong v, int depth)
-{
-    for (int i=0;i< depth;i++) {
+void SSTree::PrintTree(ulong v, int depth) {
+
+    for (int i = 0; i < depth; i++) {
       printf(" ");
     }
 
     if (v != 0) {
          PrintEdge(v);
     }
-    if(!isleaf(v)) {
+    if (!isleaf(v)) {
         PrintTree(v + 1, depth + 1);
     }
     v = sibling(v);
