@@ -32,6 +32,7 @@ quick_brown = "the quick brown fox jumped over the lazy dog ";
 
 // Longest Common SubString (A,B)
 void lcss(int n_chars, int m_overlap) {
+#if 0
     // A=aaabbbccc, B=ccbbbaa ==> lcss(A,B)=bbb
     //const char *A = "aaabbbccc", *B = "ccbbbaa";
     //uchar *text = (uchar*)"aaabbbccc$ccbbbaa";
@@ -57,6 +58,14 @@ void lcss(int n_chars, int m_overlap) {
     B[m_overlap] = 'Y';
 
     string s_text = string(A) + string("$") + string(B);
+#else
+    const char *A = "1234567890 madamimadam_abdefghi";
+    string s_A = string(A);
+    string s_B = string(s_A.rbegin(), s_A.rend());
+    string s_text = s_A + string("$") + s_B;
+    const char *B = s_B.c_str();
+#endif
+
     uchar *text = (uchar *)s_text.c_str();
 
     // One could read from file as follows:
@@ -166,8 +175,8 @@ void lcss(int n_chars, int m_overlap) {
    // Let's find a text position containing the substring
    // ulong textpos = sst->textpos(sst->firstChild(maxindex));
 
-   cout << "lcss(" << A << ',' << B << ")=";
-   cout << (char *)sst->pathlabel(maxindex) << "\n\n";
+   cout << "lcss(\nA='" << A << "',\nB='" << B << "')\n='";
+   cout << (char *)sst->pathlabel(maxindex) << "'\n\n";
 
    delete sst;
    delete[] left;

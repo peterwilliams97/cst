@@ -33,7 +33,6 @@ private:
     uint sampleRate;
     uint answerWidth;
     ulong *answer;
-    
 
 public:
     SubblockRMQ(uint);

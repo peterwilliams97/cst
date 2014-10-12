@@ -6,7 +6,7 @@
 class ReplacePattern
 {
 private:
-    ulong* answer;
+    ulong *answer;
     uint sampleRate;
     void createtable(uint);
 
@@ -14,7 +14,7 @@ public:
     ReplacePattern(uint, uint);
     ~ReplacePattern();
     ulong returnWord(ulong *, ulong, ulong);
-    ulong* returnRP(ulong *, ulong, ulong, ulong);
+    ulong *returnRP(ulong *, ulong, ulong, ulong);
 };
 
 #endif

@@ -62,11 +62,12 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
     if (samplerate != 0) {
         floorLog2n = samplerate; // Samplerate override, affects only CSA
     }
+
 #ifdef SSTREE_TIMER
-#ifdef SSTREE_HEAPPROFILE
+ #ifdef SSTREE_HEAPPROFILE
     std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
     heapCon = HeapProfiler::GetHeapConsumption();
-#endif
+ #endif
 
     printf("Creating CSA with samplerate %u\n", floorLog2n);
     fflush(stdout);
@@ -76,16 +77,16 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
         _sa = new CSA(text, n, floorLog2n, (string(filename) + ".csa").c_str());
     } else if (IOaction == save_to && filename != 0) {
         _sa = new CSA(text, n, floorLog2n, 0, (string(filename) + ".csa").c_str());
-    } else {// No IO operation
+    } else { // No IO operation
         _sa = new CSA(text, n, floorLog2n);
     }
 #ifdef SSTREE_TIMER
     printf("CSA created in %.0f seconds.\n", Tools::GetTime());
 
-#ifdef SSTREE_HEAPPROFILE
+ #ifdef SSTREE_HEAPPROFILE
     std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() - heapCon << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
     heapCon = HeapProfiler::GetHeapConsumption();
-#endif
+ #endif
 
     printf("Creating CHgtArray\n");
     fflush(stdout);
@@ -101,10 +102,10 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
 #ifdef SSTREE_TIMER
     printf("CHgtArray created in %.0f seconds.\n", Tools::GetTime());
 
-#ifdef SSTREE_HEAPPROFILE
+ #ifdef SSTREE_HEAPPROFILE
     std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() - heapCon << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
     heapCon = HeapProfiler::GetHeapConsumption();
-#endif
+ #endif
 
     printf("Creating parentheses sequence (LcpToParentheses)\n");
     fflush(stdout);
@@ -166,10 +167,10 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
 #ifdef SSTREE_TIMER
         printf("Parentheses created in %.0f seconds.\n", Tools::GetTime());
 
-    #ifdef SSTREE_HEAPPROFILE
+ #ifdef SSTREE_HEAPPROFILE
         std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() - heapCon << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
         heapCon = HeapProfiler::GetHeapConsumption();
-    #endif
+ #endif
 
         printf("Creating ReplacePatterns\n");
         fflush(stdout);
@@ -179,12 +180,10 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
     _rpSibling = new ReplacePattern(0, 8);
 #ifdef SSTREE_TIMER
         printf("ReplacePatterns created in %.0f seconds.\n", Tools::GetTime());
-
-    #ifdef SSTREE_HEAPPROFILE
+ #ifdef SSTREE_HEAPPROFILE
         std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() - heapCon << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
         heapCon = HeapProfiler::GetHeapConsumption();
-    #endif
-
+ #endif
         printf("Creating BitRanks\n");
         fflush(stdout);
         Tools::StartTimer();
@@ -200,23 +199,23 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
 //         printf("<enter>\n");
 //         std::cin.get();
 
-    #ifdef SSTREE_HEAPPROFILE
+ #ifdef SSTREE_HEAPPROFILE
         std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() - heapCon << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
         heapCon = HeapProfiler::GetHeapConsumption();
-    #endif
-
+#endif
         printf("Creating CRMQ with sample rates %d, %d and %d\n", rmqSampleRate * rmqSampleRate * rmqSampleRate, rmqSampleRate * rmqSampleRate, rmqSampleRate);
         Tools::StartTimer();
         fflush(stdout);
 #endif
     _rmq = new CRMQ(_br, _P, bitsInP, rmqSampleRate * rmqSampleRate * rmqSampleRate, rmqSampleRate * rmqSampleRate, rmqSampleRate);
-    #ifdef SSTREE_TIMER
-    #ifdef SSTREE_HEAPPROFILE
+
+#ifdef SSTREE_TIMER
+ #ifdef SSTREE_HEAPPROFILE
         std::cout << "--> HeapProfiler: " << HeapProfiler::GetHeapConsumption() - heapCon << ", " << HeapProfiler::GetMaxHeapConsumption() << std::endl;
-    #endif
+ #endif
         printf("CRMQ created in %.0f seconds.\n", Tools::GetTime());
         fflush(stdout);
-    #endif
+#endif
 }
 
 /**
@@ -262,7 +261,7 @@ ulong SSTree::child(ulong v, uchar c) {
 
     v++;   // First child of v
     while (v != 0) {
-        if (c == edge(v,1))
+        if (c == edge(v, 1))
             return v;
         v = sibling(v);
     }
@@ -273,8 +272,9 @@ ulong SSTree::child(ulong v, uchar c) {
  * Returns the first child of the (internal) node v.
  */
 ulong SSTree::firstChild(ulong v) {
-    if (isleaf(v))
+    if (isleaf(v)) {
         return 0;
+    }
 
     return v + 1;
 }
@@ -283,14 +283,15 @@ ulong SSTree::firstChild(ulong v) {
  * Returns the next sibling of the node v.
  */
 ulong SSTree::sibling(ulong v) {
-    if (v == 0)
+    if (v == 0) {
         return 0;
+    }
 
     ulong w = _Pr->findclose(parent(v));
     ulong i = _Pr->findclose(v) + 1;
-    if (i < w)
+    if (i < w) {
         return i;
-
+    }
     return 0;   // Returns zero if no next sibling
 }
 
@@ -314,7 +315,7 @@ uchar SSTree::edge(ulong v, ulong d) {
             return 0u;
         ss = _sa->substring(d1 + d - 1, 1);
         uchar result = ss[0];
-        delete [] ss;
+        delete[] ss;
         return result;
     }
 

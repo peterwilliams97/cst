@@ -52,7 +52,8 @@ private:
                ++level;
             }
             return i+1;
-        };
+        }
+
         inline bool IsCharAtPos(int c, ulong i) {
             THuffAlphabetRank *temp=this;
             if (codetable[c].count == 0) return false;

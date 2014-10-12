@@ -68,7 +68,7 @@ SubblockRMQ::SubblockRMQ(uint sampleRate)
 }
 
 SubblockRMQ::~SubblockRMQ() {
-    delete [] answer;
+    delete[] answer;
 }
 
 uint SubblockRMQ::lookup(uint block, uint i, uint j) const {

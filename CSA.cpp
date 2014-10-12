@@ -199,8 +199,7 @@ ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
 
 uchar *CSA::substring(ulong i, ulong l) {
     uchar *result = new uchar[l + 1];
-    if (l == 0)
-    {
+    if (l == 0) {
         result[0] = 0u;
         return result;
     }
@@ -208,27 +207,22 @@ uchar *CSA::substring(ulong i, ulong l) {
     ulong dist;
     ulong k = i + l - 1;
     // Check for end of the string
-    if (k > n - 1)
-    {
+    if (k > n - 1) {
         l -= k - n + 1;
         k = n - 1;
     }
 
     ulong skip = samplerate - k % samplerate - 1;
     ulong j;
-    if (k / samplerate + 1 >= n / samplerate)
-    {
+    if (k / samplerate + 1 >= n / samplerate) {
         j = bwtEndPos;
         skip = n - k - 1;
-    }
-    else
-    {
+    } else {
         j = positions[k / samplerate + 1];
         //cout << samplerate << ' ' << j << '\n';
     }
 
-    for (dist = 0; dist < skip + l; dist++)
-    {
+    for (dist = 0; dist < skip + l; dist++) {
         int c = alphabetrank->charAtPos(j);
         j = C[c]+alphabetrank->rank(c,j)-1; // LF-mapping
         if (dist >= skip)
@@ -242,22 +236,18 @@ ulong CSA::inverse(ulong i) {
 
     ulong skip = samplerate - i % samplerate;
     ulong j;
-    if (i / samplerate + 1 >= n / samplerate)
-    {
+    if (i / samplerate + 1 >= n / samplerate) {
         j = bwtEndPos;
         skip = n - i;
-    }
-    else
-    {
+    } else {
         j = positions[i / samplerate + 1];
         //cout << samplerate << ' ' << j << '\n';
     }
 
-    while (skip > 0)
-    {
+    while (skip > 0) {
         int c = alphabetrank->charAtPos(j);
         j = C[c] + alphabetrank->rank(c, j) - 1; // LF-mapping
-        skip --;
+        skip--;
     }
     return j;
 }
@@ -267,41 +257,42 @@ ulong CSA::Search(uchar *pattern, ulong m, ulong *spResult, ulong *epResult) {
     int c = (int)pattern[m - 1];
     int i = m - 1;
     int sp = C[c];
-    int ep = C[c+1]-1;
-    while (sp<=ep && i>=1)
-    {
+    int ep = C[c + 1] - 1;
+    while (sp <= ep && i >= 1){
         c = (int)pattern[--i];
-        sp = C[c]+alphabetrank->rank(c,sp-1);
-        ep = C[c]+alphabetrank->rank(c,ep)-1;
+        sp = C[c] + alphabetrank->rank(c, sp - 1);
+        ep = C[c] + alphabetrank->rank(c, ep) - 1;
     }
     *spResult = sp;
     *epResult = ep;
-    if (sp<=ep)
+    if (sp <= ep) {
         return ep - sp + 1;
-    else
+    } else {
         return 0;
+    }
 }
 
 CSA::~CSA() {
     delete alphabetrank;
     delete sampled;
-    delete [] suffixes;
-    delete [] positions;
-    delete [] codetable;
+    delete[] suffixes;
+    delete[] positions;
+    delete[] codetable;
 }
 
 
 void CSA::maketables()
 {
-    ulong sampleLength = (n%samplerate==0) ? n/samplerate : n/samplerate+1;
+    ulong sampleLength = (n % samplerate == 0) ? n / samplerate :  n / samplerate + 1;
 
-    ulong *sampledpositions = new ulong[n/W+1];
+    ulong *sampledpositions = new ulong[n / W + 1];
     suffixes = new ulong[sampleLength];
     positions = new ulong[sampleLength];
 
-    ulong i,j=0;
-    for (i=0;i<n/W+1;i++)
-        sampledpositions[i]=0lu;
+    ulong i,j = 0;
+    for (i = 0; i < n / W + 1; i++) {
+        sampledpositions[i] = 0lu;
+    }
 
     ulong x,p=bwtEndPos;
     ulong ulongmax = 0;
@@ -347,7 +338,7 @@ void CSA::maketables()
 uchar *CSA::LoadFromFile(const char *filename)
 {
     uchar *s;
-    std::ifstream file (filename, ios::in|ios::binary);
+    std::ifstream file(filename, ios::in|ios::binary);
     if (file.is_open())
     {
         std::cerr << "Loading CSA from file: " << filename << std::endl;
@@ -421,12 +412,12 @@ CSA::TCodeEntry *CSA::node::makecodetable(uchar *text, ulong n)
 // is only one node in the priority queue, the tree
 // is complete.
 //
-    while ( q.size() > 1 ) {
-        node *child0 = new node( q.top() );
+    while (q.size() > 1) {
+        node *child0 = new node(q.top());
         q.pop();
-        node *child1 = new node( q.top() );
+        node *child1 = new node(q.top());
         q.pop();
-        q.push( node( child0, child1 ) );
+        q.push(node(child0, child1));
     }
 //
 // Now I compute and return the codetable
@@ -443,9 +434,7 @@ void CSA::node::maketable(uint code, uint bits, TCodeEntry *codetable) const
         child1->maketable(SetBit(code, bits, 1), bits + 1, codetable);
         delete child0;
         delete child1;
-    }
-    else
-    {
+    } else {
         codetable[value].code = code;
         codetable[value].bits = bits;
     }
@@ -454,10 +443,12 @@ void CSA::node::maketable(uint code, uint bits, TCodeEntry *codetable) const
 void CSA::node::count_chars(uchar *text, ulong n, TCodeEntry *counts )
 {
     ulong i;
-    for (i = 0 ; i < 256 ; i++ )
+    for (i = 0 ; i < 256 ; i++ ) {
         counts[ i ].count = 0;
-    for (i = 0; i < n; i++)
+    }
+    for (i = 0; i < n; i++) {
         counts[(int)text[i]].count++;
+    }
 }
 
 uint CSA::node::SetBit(uint x, uint pos, uint bit) {
