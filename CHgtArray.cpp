@@ -21,8 +21,8 @@
 #include "CHgtArray.h"
 
 // Construct LCP-array (Space-efficient version of Kasai's algorithm)
-CHgtArray::CHgtArray(CSA *csa, const uchar *text, ulong n)
-{
+CHgtArray::CHgtArray(CSA *csa, const uchar *text, ulong n) {
+
     _csa = csa;
 
     ulong i;
@@ -80,8 +80,8 @@ CHgtArray::CHgtArray(CSA *csa, const char *filename) {
 }
 
 
-void CHgtArray::SaveToFile(const char *filename)
-{
+void CHgtArray::SaveToFile(const char *filename) {
+
     std::ofstream file (filename, ios::out|ios::binary|ios::trunc);
     if (file.is_open())
     {
@@ -109,8 +109,9 @@ void CHgtArray::SetSA(CSA *csa) {
 }
 
 ulong CHgtArray::GetPos(ulong i) const {
-    if (i >= _n)
+    if (i >= _n) {
         return 0;
+    }
 
     ulong k = _csa->lookup(i) + 1;
     return _Hgt->select(k) - 2 * k + 1;

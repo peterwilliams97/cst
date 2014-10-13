@@ -61,7 +61,7 @@ public:
 
   //Constructors
     BVTree() {
-        _tempnil = (BVNode *) ((RBTree *)this)->nil;
+        _tempnil = (BVNode *)((RBTree *)this)->nil;
         _tempbit = new bitset<2*logn>;
     }
 
@@ -156,7 +156,7 @@ protected:
 
 class BVNode : public RBNode
 {
-    public:
+public:
     ulong myPositions;
     ulong myRank;
     ulong subTreePositions; //number of positions stored in the subtree rooted at this node
@@ -164,7 +164,7 @@ class BVNode : public RBNode
 
     bitset<2*logn> *block;
 
-    BVNode(BVNode* n)
+    BVNode(BVNode *n)
         : RBNode(n), myPositions(0), myRank(0), subTreePositions(0), subTreeRank(0), block(0) {
     }
 
@@ -172,30 +172,29 @@ class BVNode : public RBNode
         delete block;
     }
 
-    BVNode* getParent(){
-        return ((BVNode*) ((RBNode*) this)->parent);
+    BVNode *getParent() {
+        return ((BVNode *)((RBNode *)this)->parent);
     }
 
-    BVNode* getLeft(){
-        return ((BVNode*) ((RBNode*) this)->left);
+    BVNode *getLeft() {
+        return ((BVNode *)((RBNode*) this)->left);
     }
 
-    BVNode* getRight(){
-        return ((BVNode*) ((RBNode*) this)->right);
+    BVNode *getRight() {
+        return ((BVNode *)((RBNode*) this)->right);
     }
 
-    void setParent(BVNode* n){
-        ((RBNode*) this)->parent=(RBNode*)n;
+    void setParent(BVNode *n) {
+        ((RBNode *)this)->parent = (RBNode *)n;
     }
 
-    void setLeft(BVNode* n){
-        ((RBNode*) this)->left=(RBNode*)n;
+    void setLeft(BVNode *n) {
+        ((RBNode *)this)->left = (RBNode *)n;
     }
 
-    void setRight(BVNode* n){
-        ((RBNode*) this)->right=(RBNode*)n;
+    void setRight(BVNode *n ){
+        ((RBNode *)this)->right = (RBNode *)n;
     }
-
 };
 
 #endif

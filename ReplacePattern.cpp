@@ -23,19 +23,22 @@ void ReplacePattern::createtable(uint check)
     for (ulong i = 0; i < k; i++)
     {
         Tools::SetVariableField(B, sampleRate, 0, i);
-        for (ulong j = 0; j < sampleRate - 1; j++)
+        for (ulong j = 0; j < sampleRate - 1; j++) {
             if (check)
             {
                 if ((Tools::GetField(B, 1, j)) && !(Tools::GetField(B, 1, j + 1)))
                     Tools::SetField(C, 1, j, 1);
-                else Tools::SetField(C, 1, j, 0);
+                else
+                    Tools::SetField(C, 1, j, 0);
             }
             else
             {
                 if (!(Tools::GetField(B, 1, j)) && (Tools::GetField(B, 1, j + 1)))
                     Tools::SetField(C, 1, j, 1);
-                else Tools::SetField(C, 1, j, 0);
+                else
+                    Tools::SetField(C, 1, j, 0);
             }
+        }
         Tools::SetField(C, 1, sampleRate - 1, 0);
 
         Tools::SetField(answer, sampleRate, i, Tools::GetVariableField(C, sampleRate, 0));
@@ -82,30 +85,30 @@ ulong ReplacePattern::returnWord(ulong *data, ulong index, ulong n)
     return result;
 }
 
-ulong *ReplacePattern::returnRP(ulong *data, ulong len, ulong index, ulong n)
-{
-    if (len + index > n)
+ulong *ReplacePattern::returnRP(ulong *data, ulong len, ulong index, ulong n) {
+
+    if (len + index > n) {
         len = n - index;
+    }
     ulong *A = new ulong[len / W + 1];
-    for (ulong j = 0; j < len / W + 1; j++)
+    for (ulong j = 0; j < len / W + 1; j++) {
         A[j] = 0;
+    }
 
     ulong k = len / (sampleRate - 1);
     ulong i = index;
     ulong value;
 
-    while (k > 0 && i + sampleRate <= n)
-    {
+    while (k > 0 && i + sampleRate <= n) {
         value = Tools::GetVariableField(data, sampleRate, i);
         value = Tools::GetField(answer, sampleRate, value);
         Tools::SetVariableField(A, sampleRate - 1, i - index, value);
 
-        k --;
+        k--;
         i += sampleRate - 1;
     }
 
-    if (i < index + len)
-    {
+    if (i < index + len) {
         k = index + len - i;
 
         if (index + len == n)

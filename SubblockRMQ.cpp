@@ -32,15 +32,15 @@ SubblockRMQ::SubblockRMQ(uint sampleRate)
 
     for (ulong block = 0; block < (uint)(1 << sampleRate); block++)
     {
-        #ifdef DEBUG_SUBBLOCK_RMQ
+#ifdef DEBUG_SUBBLOCK_RMQ
             printf("0123456789\n");
             Tools::PrintBitSequence(&block, sampleRate);
-        #endif
+ #endif
         for (uint i = 0; i < sampleRate; i++)
         {
-            #ifdef DEBUG_SUBBLOCK_RMQ
+#ifdef DEBUG_SUBBLOCK_RMQ
                 printf("Setting Answer(%d, %d, %d) = %d\n", block, i, i, i);
-            #endif
+#endif
             Tools::SetField(answer, answerWidth, block * sampleRate * sampleRate + i * sampleRate + i, i);
 
             for (uint j = i + 1; j < sampleRate; j++)
@@ -57,9 +57,9 @@ SubblockRMQ::SubblockRMQ(uint sampleRate)
                     }
                 delete brf;
 
-                #ifdef DEBUG_SUBBLOCK_RMQ
+#ifdef DEBUG_SUBBLOCK_RMQ
                     printf("Setting Answer(%d, %d, %d) = %d\n", block, i, j, minIndex);
-                #endif
+#endif
                 Tools::SetField(answer, answerWidth, block * sampleRate * sampleRate + i * sampleRate + j, minIndex);
                 Tools::SetField(answer, answerWidth, block * sampleRate * sampleRate + j * sampleRate + i, minIndex);
             }

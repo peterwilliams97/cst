@@ -78,18 +78,20 @@ uchar DynFMI::iterateGetSymbol(){
         walk->bittree->iterateNext();
 
         if (bit) { //bit = 1
-            if (walk->right == 0) return walk->c1;
-            walk=walk->right;
+            if (walk->right == 0)
+                return walk->c1;
+            walk = walk->right;
         } else { // bit = 0
-            if (walk->left == 0) return walk->c0;
-            walk=walk->left;
+            if (walk->left == 0)
+                return walk->c0;
+            walk = walk->left;
         }
 
 
     } // end of while
 }
 
-uchar* DynFMI::getBWT(){
+uchar *DynFMI::getBWT(){
     ulong n = root->bittree->getPositions();
     uchar *text = new uchar[n];
     bool data=true;
@@ -160,11 +162,13 @@ void DynFMI::appendBVTrees(WaveletNode *node){
 
 void DynFMI::initEmptyDynFMI(uchar *text){
     // pointers to the leaves for select
-    leaves = (WaveletNode**) new WaveletNode*[256];
-    for(int j=0; j<256; j++) leaves[j]=0;
+    leaves = (WaveletNode **)new WaveletNode *[256];
+    for(int j = 0; j < 256; j++) {
+        leaves[j] = 0;
+    }
 
     ulong i=0;
-    while (text[i]!='\0') {
+    while (text[i] != '\0') {
 
         if (leaves[text[i]]==0) {
             leaves[text[i]] = new WaveletNode(text[i]);
@@ -175,13 +179,13 @@ void DynFMI::initEmptyDynFMI(uchar *text){
 
     // separation symbol:
     leaves[0] = new WaveletNode((uchar)0);
-    leaves[0]->weight=1;
+    leaves[0]->weight = 1;
 
     // Veli's approach:
     priority_queue< WaveletNode*, vector<WaveletNode*>, greater<WaveletNode*> > q;
 
-    for(int j=0; j<256; j++){
-        if (leaves[j]!=0) {
+    for (int j = 0; j < 256; j++){
+        if (leaves[j] != 0) {
             q.push( (leaves[j]) );
         }
         codes[j] = 0;
@@ -197,7 +201,7 @@ void DynFMI::initEmptyDynFMI(uchar *text){
         WaveletNode *right = q.top();
         q.pop();
 
-        q.push(  new WaveletNode(left, right) );
+        q.push(new WaveletNode(left, right));
     }
 
     root = q.top();
@@ -206,16 +210,16 @@ void DynFMI::initEmptyDynFMI(uchar *text){
     makeCodes(0,0, root);    // writes codes and codelengths
 
     // merge leaves    (one leaf represent two characters!)
-    for(int j=0; j<256; j++){
+    for (int j = 0; j < 256; j++){
 
         if (leaves[j]) {
 
-            if (leaves[j]->parent->left==leaves[j]) {
-                leaves[j]->parent->c0=j;
+            if (leaves[j]->parent->left == leaves[j]) {
+                leaves[j]->parent->c0 = j;
             } else {
-                leaves[j]->parent->c1=j;
+                leaves[j]->parent->c1 = j;
             }
-            leaves[j]=leaves[j]->parent; // merge
+            leaves[j] = leaves[j]->parent; // merge
         }
     }
 
@@ -224,7 +228,9 @@ void DynFMI::initEmptyDynFMI(uchar *text){
     appendBVTrees(root);
 
     // array C needed for backwards search
-    for(int j=0; j<256+256; j++) C[j] = 0;
+    for(int j=0; j<256+256; j++) {
+        C[j] = 0;
+    }
 }
 
 void DynFMI::insert(uchar c, ulong i){
@@ -249,18 +255,18 @@ void DynFMI::insert(uchar c, ulong i){
         i=walk->bittree->rank(bit, i);
 
         if (bit) { //bit = 1
-            walk=walk->right;
+            walk = walk->right;
         } else { // bit = 0
-            walk=walk->left;
+            walk = walk->left;
         }
 
         level++;
     } // end of while
 
     int j = 256 + c;
-    while(j > 1) {
+    while (j > 1) {
         C[j]++;
-        j=binaryTree_parent(j);
+        j = binaryTree_parent(j);
     }
     C[j]++;
 }
@@ -273,7 +279,7 @@ uchar DynFMI::operator[](ulong i){
     while (true) {
 
         bit = (*walk->bittree)[i]; //TODO improve by reducing
-        i=walk->bittree->rank(bit, i);
+        i = walk->bittree->rank(bit, i);
 
         if (bit) { //bit = 1
             if (walk->right == 0) return walk->c1;
@@ -343,8 +349,8 @@ void DynFMI::addText(uchar *str, ulong n){
     insert(str[n - 2], i); // insert second last character, corresponds to suffix of length 1
 
     for (ulong t = n - 2; t > 0; t--) {
-        i= 1+getNumberOfSymbolsSmallerThan(str[t]) + rank(str[t], i);
-        insert(str[t-1],i);
+        i = 1 + getNumberOfSymbolsSmallerThan(str[t]) + rank(str[t], i);
+        insert(str[t - 1], i);
     }
 
     i = 1 + getNumberOfSymbolsSmallerThan(str[0]) + rank(str[0], i);
@@ -365,8 +371,7 @@ ulong DynFMI::getNumberOfSymbolsSmallerThan(uchar c){
 
 void DynFMI::printDynFMIContent(ostream& stream){
     uchar c;
-    for (ulong i=1; i<=getSize(); i++)
-    {
+    for (ulong i = 1; i <= getSize(); i++) {
         c = (*this)[i];
         if (c==0) c= '#';
         stream << c;

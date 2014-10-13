@@ -98,9 +98,9 @@ public:
     ulong sibling(ulong) ;
     ulong parent(ulong ) ;
     uchar edge(ulong, ulong) ;
-    uchar* edge(ulong) ;
-    uchar* pathlabel(ulong);
-    uchar* substring(ulong, ulong);
+    uchar *edge(ulong) ;
+    uchar *pathlabel(ulong);
+    uchar *substring(ulong, ulong);
     ulong depth(ulong);
     ulong nodeDepth(ulong);
     ulong lca(ulong, ulong);

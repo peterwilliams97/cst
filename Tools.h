@@ -11,8 +11,13 @@
 #include <climits>
 #include <cstdlib>
 
-// !@#$
-#define __WORDSIZE 32
+//  _WIN64 is for the windows build, __amd64__ is for gcc (linux/mac)
+#if defined(_WIN64) || defined(__amd64__)
+ #define __WORDSIZE 64
+#else
+ #define __WORDSIZE 32
+#endif
+
 
 // Generates an error if __WORDSIZE is not defined
 #ifndef __WORDSIZE
@@ -22,9 +27,9 @@
 // Check word length on GNU C/C++:
 // __WORDSIZE should be defined in <bits/wordsize.h>, which is #included from <limits.h>
 #if __WORDSIZE == 64
-#   define W 64
+ #define W 64
 #else
-#   define W 32
+ #define W 32
 #endif
 
 #define WW (W * 2)
@@ -71,8 +76,7 @@ public:
         ulong mask = (j + len < W ? ~0lu << (j + len) : 0)
                      | (W - j < W ? ~0lu >> (W - j) : 0);
         A[i] = (A[i] & mask) | x << j;
-        if (j + len > W)
-        {
+        if (j + len > W) {
             mask = ((~0lu) << (len + j - W));
             A[i+1] = (A[i+1] & mask) | x >> (W - j);
         }
@@ -92,18 +96,20 @@ public:
         }
         return result;
     }
-
-
+    
     static inline ulong GetVariableField(ulong *A, uint len, ulong index)
     {
-       ulong i=index/W, j=index-W*i, result;
-       if (j+len <= W)
-       result = (A[i] << (W-j-len)) >> (W-len);
-       else {
+        ulong i = index / W;
+        ulong j = index - W * i;
+        ulong result;
+       
+        if (j + len <= W) {
+            result = (A[i] << (W-j-len)) >> (W-len);
+        } else {
              result = A[i] >> j;
              result = result | (A[i+1] << (WW-j-len)) >> (W-len);
-          }
-       return result;
+        }
+        return result;
     }
 
     static inline void SetVariableField(ulong *A, uint len, ulong index, ulong x) {

@@ -437,7 +437,6 @@ ulong SSTree::lceLinear(uchar *text, ulong i, ulong j) {
     while (text[i + k] == text[j + k]) {
         k++;
     }
-
     return k;
 }
 

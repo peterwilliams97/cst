@@ -27,18 +27,19 @@ uchar *Tools::GetRandomString(uint min, uint max, uint &alphabetSize) {
     uint len = std::rand() % (max - min) + min;
     alphabetSize = std::rand() % 26 + 1;
     uchar* temp = new uchar[len + 2];
-    for (uint i = 0; i < len; i++)
+    for (uint i = 0; i < len; i++) {
         temp[i] = 97 + std::rand() % alphabetSize;
-    temp[len] = 0u ;temp[len+1] = '\0';
+    }
+    temp[len] = 0u;
+    temp[len+1] = '\0';
     return temp;
 }
 
-ulong * Tools::bp2bitstream(uchar* bp)
+ulong *Tools::bp2bitstream(uchar *bp)
 {
     ulong len = strlen((char *)bp);
-    ulong *A = new ulong[len/W + 1];
-    for (ulong i = 0; i < len; i++)
-    {
+    ulong *A = new ulong[len / W + 1];
+    for (ulong i = 0; i < len; i++) {
         if (bp[i] == '(')
             SetField(A, 1, i, 1);
         else
@@ -49,11 +50,12 @@ ulong * Tools::bp2bitstream(uchar* bp)
 
 void Tools::PrintBitSequence(ulong *A, ulong len)
 {
-    for(ulong i = 0; i < len; i++)
+    for(ulong i = 0; i < len; i++) {
         if (GetField(A, 1, i))
             std::cout << "1";
         else
             std::cout << "0";
+    }
     std::cout << "\n";
 }
 
@@ -201,7 +203,8 @@ void Tools::RemoveControlCharacters(uchar *data)
 uint Tools::bits (ulong n) {
     uint b = 0;
     while (n) {
-        b++; n >>= 1;
+        b++;
+        n >>= 1;
     }
     return b;
 }

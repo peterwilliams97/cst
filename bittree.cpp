@@ -97,9 +97,10 @@ bool BVTree::iterateNext(){
     return true;
 }
 
-ulong BVTree::getPositions(){
-
-    if (getRoot() == getNil()) return 0;
+ulong BVTree::getPositions() {
+    if (getRoot() == getNil()) {    
+        return 0;
+    }
     return getRoot()->subTreePositions;
 }
 

@@ -58,18 +58,18 @@ class RBNode
 };
 
 class RBTree{
-    public:
 
+public:
     RBNode *root;
     RBNode *nil;
 
-    RBTree(){
+    RBTree() {
         nil = new RBNode();
-        nil->parent=nil;
-        nil->left=nil;
-        nil->right=nil;
+        nil->parent = nil;
+        nil->left = nil;
+        nil->right = nil;
         nil->color = BLACK;
-        root=nil;
+        root = nil;
     }
 
     virtual ~RBTree(){

@@ -86,7 +86,8 @@ template<> struct greater<WaveletNode *> {
 }
 
 class DynFMI{
-    public:
+
+public:
     //construct bwt
     DynFMI(uchar *text, ulong n);
 
@@ -95,11 +96,13 @@ class DynFMI{
     //get result (bwt)
     uchar *getBWT();
 
-    ulong getSize() {return root->bittree->getPositions();}
+    ulong getSize() {
+        return root->bittree->getPositions();
+    }
 
     //LF(i)-mapping: C[L[i]]+rank_L[i](L,i)
     ulong LFmapping(ulong i) {
-        uchar s=(*this)[i];
+        uchar s = (*this)[i];
         return (ulong)getNumberOfSymbolsSmallerThan(s) + rank(s,i);
     }
 

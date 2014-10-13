@@ -62,10 +62,10 @@
   // excess: using the number of open parentheses
   // enclose: almost findparent
 
-    // creates a parentheses structure from a bitstring, which is shared
-        // n is the total number of parentheses, opening + closing
-   static uchar FwdPos[256][W/2];
-   static uchar BwdPos[256][W/2];
+  // creates a parentheses structure from a bitstring, which is shared
+  // n is the total number of parentheses, opening + closing
+   static uchar FwdPos[256][W / 2];
+   static uchar BwdPos[256][W / 2];
    static char Excess[256];
    static bool tablesComputed = false;
 
@@ -85,13 +85,14 @@ Parentheses::Parentheses (ulong *string, ulong n, bool bwd, BitRank *br)
 #ifdef INDEXREPORT
      printf ("   Parentheses: total %i, near %i, far %i, pnear %i, pfar %i\n",n,near,far,pnear,pfar);
 #endif
-     this->sftable = new Hash (far,nbits,1.8);
-     this->bftable = new Hash (near,sbits,1.8);
-     if (bwd)
-    { this->sbtable = new Hash (pfar,nbits,1.8);
-          this->bbtable = new Hash (pnear,sbits,1.8);
+     this->sftable = new Hash(far, nbits, 1.8);
+     this->bftable = new Hash(near, sbits, 1.8);
+    if (bwd){ 
+         this->sbtable = new Hash(pfar, nbits, 1.8);
+         this->bbtable = new Hash(pnear, sbits, 1.8);
+    } else {
+        sbtable = bbtable = 0;
     }
-     else sbtable = bbtable = 0;
      filltables(bwd);
      if (!tablesComputed) {
          tablesComputed = true;
@@ -177,10 +178,9 @@ void Parentheses::filltables(bool bwd)
 
     // Iterate bit vector
     for (ulong i = 0; i < n; i ++)
-        if (br->IsBitSet(i))
+        if (br->IsBitSet(i)) {
             node->push(i);  // Push node position
-        else
-        {
+        } else {
             ulong posopen = node->top();   // Pop Open-leaf position from stack
             node->pop();
             ulong posparent = node->top(); // Peak for parent node position
@@ -343,10 +343,10 @@ ulong Parentheses::findparent(ulong i) {
 
     // first see if it is at small distance
     len = W; if (i < len) len = i-1;
-    bitW = Tools::GetVariableField (bp,len, i-len) << (W-len);
+    bitW = Tools::GetVariableField(bp,len, i-len) << (W-len);
     exc = 0;
     len = 0;
-    while (bitW && (exc < W/2))
+    while (bitW && (exc < W / 2))
         // either we shift it all or it only closes parentheses or too
         // many closed parentheses
         { W1 = (bitW >> (W-8));
@@ -392,7 +392,7 @@ ulong Parentheses::enclose(ulong i) {
         return 0; // no parent!
     if (excess(i) == 1)
         return 0;
-   return findparent (i);
+   return findparent(i);
 }
 
 ulong Parentheses::isOpen(ulong i) {

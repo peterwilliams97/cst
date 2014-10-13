@@ -134,7 +134,6 @@ void RBTree::rbInsertFixup(RBNode *z, void (*updateNode)(RBNode *n, RBTree *T)){
     root->color=BLACK;
 }
 
-
 void RBTree::rbDeleteFixup(RBNode *x, void (*updateNode)(RBNode* n, RBTree *T)){
     RBNode *w;
 
@@ -264,7 +263,6 @@ void RBTree::rbDelete(RBNode *z, void (*updateNode)(RBNode *n, RBTree *T)){
     if (y_oldParent!=nil) updateNode(y_oldParent, this);
 }
 
-
 RBNode *RBTree::treeSuccessor(RBNode *x){
     if (x->right != nil) return treeMinimum(x->right);
 
@@ -297,7 +295,6 @@ RBNode *RBTree::treeMaximum(RBNode *x){
     return x;
 }
 
-
 bool RBTree::isLeftChild(RBNode *n){
 #ifndef NDEBUG
     if (n->parent == nil) {
@@ -318,8 +315,7 @@ bool RBTree::isRightChild(RBNode *n){
     return (n->parent->right == n);
 }
 
-
-RBNode* RBTree::findRightSiblingLeaf(RBNode *n){
+RBNode *RBTree::findRightSiblingLeaf(RBNode *n){
     // go up:
     while (true) {
         if (n->parent!=nil) {
@@ -400,7 +396,6 @@ void RBTree::printSubTree(RBNode *n){
         else printSubTree(n->right);
     cout << "]";
 }
-
 
 void RBTree::checkSubTree(RBNode *n){
 

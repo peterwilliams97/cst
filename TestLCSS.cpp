@@ -81,7 +81,9 @@ void lcss(int n_chars, int m_overlap) {
     // text could be deleted now, and recovered as follows:
 
     cout << "... for text A$B=";
-    cout << (char *)sst->substring(0, n - 1) << '\n';
+    uchar *sstring = sst->substring(0, n - 1);
+    cout << (char *)sstring << '\n';
+    free(sstring);
 
     // NOTE: to save some memory during construction, one can also
     // instruct the constructor to delete the text as soon as it is
@@ -176,7 +178,9 @@ void lcss(int n_chars, int m_overlap) {
    // ulong textpos = sst->textpos(sst->firstChild(maxindex));
 
    cout << "lcss(\nA='" << A << "',\nB='" << B << "')\n='";
-   cout << (char *)sst->pathlabel(maxindex) << "'\n\n";
+   uchar *pathlabel = sst->pathlabel(maxindex);
+   cout << (char *)pathlabel << "'\n\n";
+   free(pathlabel);
 
    delete sst;
    delete[] left;
@@ -184,6 +188,11 @@ void lcss(int n_chars, int m_overlap) {
 }
 
 int main() {
+    //_CrtSetBreakAlloc(950);
     lcss(1000, 50);
+#ifdef WIN32
+    /* Dump memory leaks if win32 debug build */
+    _CrtDumpMemoryLeaks();
+#endif
     return 0;
 }
