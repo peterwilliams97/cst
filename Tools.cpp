@@ -6,6 +6,8 @@
 #include <string.h>
 #include "Tools.h"
 
+using namespace std;
+
 #ifdef _WIN32
 double log2(double x) {
     return log(x) / log(2.0);
@@ -20,13 +22,13 @@ void Tools::StartTimer() {
 
 double Tools::GetTime() {
     time_t stopTime = time(NULL);
-    return difftime( stopTime, startTime );
+    return difftime(stopTime, startTime);
 }
 
 uchar *Tools::GetRandomString(uint min, uint max, uint &alphabetSize) {
     uint len = std::rand() % (max - min) + min;
     alphabetSize = std::rand() % 26 + 1;
-    uchar* temp = new uchar[len + 2];
+    uchar *temp = new uchar[len + 2];
     for (uint i = 0; i < len; i++) {
         temp[i] = 97 + std::rand() % alphabetSize;
     }
@@ -35,8 +37,7 @@ uchar *Tools::GetRandomString(uint min, uint max, uint &alphabetSize) {
     return temp;
 }
 
-ulong *Tools::bp2bitstream(uchar *bp)
-{
+ulong *Tools::bp2bitstream(uchar *bp) {
     ulong len = strlen((char *)bp);
     ulong *A = new ulong[len / W + 1];
     for (ulong i = 0; i < len; i++) {
@@ -48,15 +49,14 @@ ulong *Tools::bp2bitstream(uchar *bp)
     return A;
 }
 
-void Tools::PrintBitSequence(ulong *A, ulong len)
-{
-    for(ulong i = 0; i < len; i++) {
+void Tools::PrintBitSequence(ulong *A, ulong len) {
+    for (ulong i = 0; i < len; i++) {
         if (GetField(A, 1, i))
-            std::cout << "1";
+            cout << "1";
         else
-            std::cout << "0";
+            cout << "0";
     }
-    std::cout << "\n";
+    cout << "\n";
 }
 
 uint Tools::FloorLog2(ulong i)
@@ -73,8 +73,7 @@ uint Tools::FloorLog2(ulong i)
 }
 
 //Creating table to find logn in small time
-uint *Tools::MakeTable()
-{
+uint *Tools::MakeTable() {
     uint *table = new uint[512];
     for (uint i = 0; i < 9; i++)
     {
@@ -102,8 +101,8 @@ uint *Tools::MakeTable()
     return table;
 }
 
-uint Tools::FastFloorLog2(uint i)
-{
+uint Tools::FastFloorLog2(uint i) {
+
     uint *table = MakeTable(); uint u;
     if (i >> 24)    u = 22 + table[ i >> 24] ;
     if (i >> 16)    u = 14 + table[ i >> 16] ;
@@ -113,8 +112,8 @@ uint Tools::FastFloorLog2(uint i)
     return u;
 }
 
-uint Tools::CeilLog2(ulong i)
-{
+uint Tools::CeilLog2(ulong i) {
+
     uint j = FloorLog2(i);
     if ((ulong)(1lu << j) != i)
         return j + 1;
@@ -122,8 +121,7 @@ uint Tools::CeilLog2(ulong i)
     return j;
 }
 
-uchar *Tools::GetFileContents(char *filename, ulong maxSize)
-{
+uchar *Tools::GetFileContents(char *filename, ulong maxSize) {
     std::ifstream::pos_type posSize;
     std::ifstream file ((char *)filename, std::ios::in|std::ios::binary|std::ios::ate);
     if (file.is_open())

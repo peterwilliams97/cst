@@ -69,15 +69,15 @@
    static char Excess[256];
    static bool tablesComputed = false;
 
-Parentheses::Parentheses (ulong *string, ulong n, bool bwd, BitRank *br)
-{
-     ulong i,s,nb,ns,nbits;
+Parentheses::Parentheses (ulong *string, ulong n, bool bwd, BitRank *br) {
+
+     ulong i, s, nb, ns ,nbits;
      this->bp = string;
      this->n = n;
      this->br = br;
-     nbits = Tools::bits(n-1);
-     s = nbits*W;
-     this->sbits = Tools::bits(s-1);
+     nbits = Tools::bits(n - 1);
+     s = nbits * W;
+     this->sbits = Tools::bits(s - 1);
      s = 1lu << sbits; // to take the most advantage of what we can represent
      ns = (n+s-1)/s; nb = (s+W-1)/W; // adjustments
      near = far = pnear = pfar = 0lu;
@@ -237,7 +237,7 @@ ulong Parentheses::filltables (ulong posparent, ulong posopen, bool bwd)
     return posclose;
 }*/
 
-void Parentheses::fcompchar (uchar x, uchar *pos, char *excess) {
+void Parentheses::fcompchar(uchar x, uchar *pos, char *excess) {
     int exc = 0;
     uint i;
     for (i = 0; i < W / 2; i++) {
@@ -284,16 +284,16 @@ ulong Parentheses::findclose(ulong i) {
     ulong h;
     ulong myexcess;
 
-     // Closing parenthesis for root
-     if (i == 0) {
+    // Closing parenthesis for root
+    if (i == 0) {
         return n - 1;
-     }
+    }
     // first see if it is at small distance
-     len = W; if (i+len >= n) len = n - i - 1;
-     bitW = ~(Tools::GetVariableField(bp, len, i + 1));
-     exc = 0;
-     len = 0;
-     while (bitW && (exc < W/2)) {
+    len = W; if (i+len >= n) len = n - i - 1;
+    bitW = ~(Tools::GetVariableField(bp, len, i + 1));
+    exc = 0;
+    len = 0;
+    while (bitW && (exc < W/2)) {
         // either we shift it all or it only opens parentheses or too
         // many open parentheses
         W1 = bitW & 255;
@@ -346,34 +346,34 @@ ulong Parentheses::findparent(ulong i) {
     bitW = Tools::GetVariableField(bp,len, i-len) << (W-len);
     exc = 0;
     len = 0;
-    while (bitW && (exc < W / 2))
+    while (bitW && (exc < W / 2)) {
         // either we shift it all or it only closes parentheses or too
         // many closed parentheses
-        { W1 = (bitW >> (W-8));
+        W1 = (bitW >> (W-8));
           if ((res = BwdPos[W1][exc])) return i-len-res;
           bitW <<= 8; exc += Excess[W1]; // note W1 is complemented!
       len += 8;
     }
     // ok, it's not a small distance, try with hashing btable
-     minres = 0;
-     myexcess = excess (i) - 1;
-     res = bbtable->searchHash (i, &h);
-     while (res)
-    { if (!minres || (res < minres))
-         if ((i-res >= 0) && (excess(i - res) == myexcess))
-        minres = res;
-      res = bbtable->nextHash (&h);
+    minres = 0;
+    myexcess = excess (i) - 1;
+    res = bbtable->searchHash (i, &h);
+    while (res) {
+        if (!minres || (res < minres))
+            if ((i-res >= 0) && (excess(i - res) == myexcess))
+                minres = res;
+        res = bbtable->nextHash (&h);
     }
      if (minres) return i-minres;
     // finally, it has to be a far pointer
-     res = sbtable->searchHash (i, &h);
-     while (res)
-    { if (!minres || (res < minres))
-         if ((i-res >= 0) && (excess(i-res) == myexcess))
-        minres = res;
-      res = sbtable->nextHash(&h);
+    res = sbtable->searchHash (i, &h);
+    while (res) { 
+         if (!minres || (res < minres))
+            if ((i-res >= 0) && (excess(i-res) == myexcess))
+                minres = res;
+        res = sbtable->nextHash(&h);
     }
-     return i-minres; // there should be one if the sequence is balanced!
+    return i - minres; // there should be one if the sequence is balanced!
    }
 
     // # open - # close at position i, not included

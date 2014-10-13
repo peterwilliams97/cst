@@ -54,7 +54,7 @@ const uchar select_tab[] =
 
 
 // bits needed to represent a number between 0 and n
-inline ulong bits (ulong n){
+inline ulong bits (ulong n) {
     ulong b = 0;
     while (n) { b++; n >>= 1; }
     return b;
@@ -72,11 +72,11 @@ inline ulong bits (ulong n){
     }
 #endif
 
-inline uint popcount16 (int x){
+inline uint popcount16 (int x) {
   return __popcount_tab[x & 0xff]  + __popcount_tab[(x >>  8) & 0xff];
 }
 
-inline uint popcount8 (int x){
+inline uint popcount8 (int x) {
   return __popcount_tab[x & 0xff];
 }
 
@@ -95,22 +95,21 @@ BitRank::BitRank(ulong *bitarray, ulong n, bool owner, ReplacePattern *rp) {
         integers = (n+1)/W;
     BuildRank();
 
-    if (rp != 0)
-    {
-        delete [] data;
+    if (rp != 0) {
+        delete[] data;
         data = bitarray;
     }
 }
 
 BitRank::~BitRank() {
-    delete [] Rs;
-    delete [] Rb;
+    delete[] Rs;
+    delete[] Rb;
     if (owner) delete [] data;
 }
 
 //Build the rank (blocks and superblocks)
-void BitRank::BuildRank()
-{
+void BitRank::BuildRank() {
+
     ulong num_sblock = n / s;
     ulong num_block = n / b;
     Rs = new ulong[num_sblock + 1];//+1 we add the 0 pos
@@ -119,27 +118,27 @@ void BitRank::BuildRank()
 
     Rs[0] = 0lu;
 
-    for (j=1;j<=num_sblock;j++)  {
+    for (j = 1; j <= num_sblock; j++) {
         Rs[j]=BuildRankSub((j - 1) * superFactor, superFactor) + Rs[j - 1];
     }
 
     Rb[0]=0;
-    for (ulong k=1;k<=num_block;k++) {
+    for (ulong k = 1; k <= num_block; k++) {
         j = k / superFactor;
         Rb[k] = (uchar)BuildRankSub(j * superFactor, k % superFactor);
     }
 }
 
 ulong BitRank::BuildRankSub(ulong ini, ulong bloques){
-    ulong rank=0,aux;
+    ulong rank = 0,aux;
 
     for(ulong i=ini;i<ini+bloques;i++) {
-    if (i < integers) {
-        aux=data[i];
-        rank+=popcount(aux);
+        if (i < integers) {
+            aux = data[i];
+            rank += popcount(aux);
+        }
     }
-}
-     return rank; //return the numbers of 1's in the interval
+    return rank; //return the numbers of 1's in the interval
 }
 
 //this rank ask from 0 to n-1
@@ -180,8 +179,8 @@ ulong BitRank::select(ulong x) {
     }
     //sequential search using popcount over a int
     ulong left;
-    left=mid*superFactor;
-    x-=rankmid;
+    left = mid * superFactor;
+    x -= rankmid;
     ulong j;
     if (rp == 0)
         j = data[left];
@@ -202,7 +201,7 @@ ulong BitRank::select(ulong x) {
         ones = popcount(j);
     }
     //sequential search using popcount over a char
-    left=left*b;
+    left = left * b;
     rankmid = popcount8(j);
     if (rankmid < x) {
         j=j>>8;
@@ -239,8 +238,9 @@ ulong BitRank::select0(ulong x) {
     // then sequential search bit a bit
 
     //binary search over first level rank structure
-    if (x == 0)
+    if (x == 0) {
         return 0;
+    }
 
     ulong l=0, r=n/s;
     ulong mid=(l+r)/2;
@@ -301,8 +301,10 @@ ulong BitRank::select0(ulong x) {
 
     // then sequential search bit a bit
     while (x>0) {
-        if  (!(j&1lu)) x--;
-        j=j>>1;
+        if (!(j & 1lu)) {
+            x--;
+        }
+        j = j >> 1;
         left++;
     }
     return left - 1;

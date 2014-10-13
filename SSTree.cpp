@@ -48,8 +48,7 @@
  * @param action IO action for <filename>. Defaults to no operation.
  * @param filename Prefix for the filenames used.
  */
-SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action IOaction, const char *filename)
-{
+SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action IOaction, const char *filename) {
 #ifdef SSTREE_HEAPPROFILE
     ulong heapCon;
 #endif
