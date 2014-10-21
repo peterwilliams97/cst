@@ -100,6 +100,7 @@ private:
         void maketable( uint code, uint bits, TCodeEntry *codetable ) const;
         static void count_chars(uchar *, ulong , TCodeEntry *);
         static uint SetBit(uint , uint , uint );
+    
     public:
         node( uchar c = 0, uint i = 0 ) {
             value = c;
@@ -125,7 +126,7 @@ private:
 
     static const uchar print = 1;
     static const uchar report = 1;
-    ulong n;
+    ulong _n;
     uint samplerate;
     ulong C[256];
     ulong bwtEndPos;
@@ -136,8 +137,8 @@ private:
     TCodeEntry *codetable;
 
     // Private methods
-    uchar * BWT(uchar *);
-    uchar * LoadFromFile(const char *);
+    uchar *BWT(uchar *);
+    uchar *LoadFromFile(const char *);
     void SaveToFile(const char *, uchar *);
     void maketables();
 

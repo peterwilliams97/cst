@@ -29,7 +29,7 @@
 #include "SSTree.h"
 
 #ifdef SSTREE_HEAPPROFILE
-#   include "HeapProfiler.h"
+#include "HeapProfiler.h"
 #endif
 
 /**
@@ -74,7 +74,7 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
 #endif
     if (IOaction == load_from && filename != NULL) {
         _sa = new CSA(text, n, floorLog2n, (string(filename) + ".csa").c_str());
-    } else if (IOaction == save_to && filename != 0) {
+    } else if (IOaction == save_to && filename != NULL) {
         _sa = new CSA(text, n, floorLog2n, 0, (string(filename) + ".csa").c_str());
     } else { // No IO operation
         _sa = new CSA(text, n, floorLog2n);
@@ -96,8 +96,9 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
     } else {
         _hgt = new CHgtArray(_sa, text, n);
     }
-    if (IOaction == save_to && filename != 0)
+    if (IOaction == save_to && filename != NULL) {
         _hgt->SaveToFile((string(filename) + ".lcp").c_str());
+    }
 #ifdef SSTREE_TIMER
     printf("CHgtArray created in %.0f seconds.\n", Tools::GetTime());
 
@@ -111,7 +112,7 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
     Tools::StartTimer();
 #endif
     if (deletetext) {
-       delete [] text;
+       delete[] text;
     }
 
 #ifdef SSTREE_HEAPPROFILE
@@ -119,12 +120,12 @@ SSTree::SSTree(uchar *text, ulong n, bool deletetext, uint samplerate, io_action
 #endif
 
     ulong bitsInP;
-    if (IOaction == load_from && filename != 0) {
+    if (IOaction == load_from && filename != NULL) {
         _P = LcpToParentheses::GetBalancedParentheses((string(filename) + ".bp").c_str(), bitsInP);
     } else {
         _P = LcpToParentheses::GetBalancedParentheses(_hgt, n, bitsInP);
     }
-    if (IOaction == save_to && filename != 0) {
+    if (IOaction == save_to && filename != NULL) {
         LcpToParentheses::SaveToFile((string(filename) + ".bp").c_str(), _P, bitsInP);
     }
 #ifdef SSTREE_TIMER
@@ -260,8 +261,9 @@ ulong SSTree::child(ulong v, uchar c) {
 
     v++;   // First child of v
     while (v != 0) {
-        if (c == edge(v, 1))
+        if (c == edge(v, 1)) {
             return v;
+        }
         v = sibling(v);
     }
     return 0;
@@ -310,8 +312,9 @@ uchar SSTree::edge(ulong v, ulong d) {
         ulong i = leftrank(v);
         ulong j = depth(parent(v));
         ulong d1 = _sa->lookup(i) + j;
-        if (d > _n - d1)
+        if (d > _n - d1) {
             return 0u;
+        }
         ss = _sa->substring(d1 + d - 1, 1);
         uchar result = ss[0];
         delete[] ss;
@@ -576,7 +579,7 @@ void SSTree::PrintTree(ulong v, int depth) {
 }
 
 /**
- * Returns the Right most leaf of the (internal) node v.
+ * Returns the Rightmost leaf of the (internal) node v.
  */
 ulong SSTree::rightmost(ulong v) {
     return _brLeaf->select(_brLeaf->rank(_Pr->findclose(v)));
@@ -586,7 +589,7 @@ ulong SSTree::rightmost(ulong v) {
  * Returns the Left most leaf of the (internal) node v.
  */
 ulong SSTree::leftmost(ulong v) {
-    return _brLeaf->select(_brLeaf->rank(v)+1);
+    return _brLeaf->select(_brLeaf->rank(v) + 1);
 }
 
 /**
@@ -671,8 +674,9 @@ ulong SSTree::search(uchar *pattern, ulong l) {
         sp   -= close - open;
         r_sp -= close - open;  // Rank changes also
     }
-    if (open > close)
+    if (open > close) {
         ep += open - close;    // Rank (r_ep) doesn't change
+    }
 
     // Number of close parentheses on the interval [0, sp]
     close = sp - r_sp + 1;

@@ -214,12 +214,12 @@ void BVTree::updateCounters(BVNode *n){
 
 ulong BVTree::getLocalRank(BVNode* n, ulong position){
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (position > n->myPositions) {
         cerr << "error: getLocalRank: invalid position in block.\n";
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
     *_tempbit =*(n->block)<<((2*logn)-position);
     return _tempbit->count();
@@ -233,12 +233,12 @@ ulong BVTree::getLocalRank(BVNode* n, ulong position){
 
 ulong BVTree::getLocalSelect1(BVNode* n, ulong query){
     ulong select =0;
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (query > n->myPositions) {
         cerr << "error: getLocalSelect1: invalid position in block.\n";
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
     ulong i;
     for (i = 0; select < query; i++) { // TODO is there a faster solution similar to rank ?
         if ((*n->block)[i]) select++;
@@ -249,22 +249,24 @@ ulong BVTree::getLocalSelect1(BVNode* n, ulong query){
 
 ulong BVTree::getLocalSelect0(BVNode* n, ulong query){
     ulong select =0;
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (query > n->myPositions) {
         cerr << "error: getLocalSelect0: invalid position in block.\n";
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
     ulong i;
     for (i = 0; select < query; i++) {
-        if (!(*n->block)[i]) select++;
+        if (!(*n->block)[i]) {
+            select++;
+        }
     }
 
     return i;
 }
 
 void BVTree::printNode(ulong i){
-    BVNode* x = getRoot();
+    BVNode *x = getRoot();
 
 #ifndef NDEBUG
     if (x == getNil()) {
@@ -308,8 +310,8 @@ void BVTree::printNode(ulong i){
 
 bool BVTree::operator[](ulong i){
 
-    BVNode* x = getRoot();
-    ulong lsP=0;
+    BVNode *x = getRoot();
+    ulong lsP = 0;
     bool search = true;
     //find the corresponding block:
     while (search)
@@ -330,14 +332,14 @@ bool BVTree::operator[](ulong i){
                 exit(EXIT_FAILURE);
             }
 #endif
-            x=x->getLeft();
+            x = x->getLeft();
         }
-        else if (lsP+x->myPositions >= i){
-            i-=lsP;
+        else if (lsP + x->myPositions >= i){
+            i -= lsP;
             search = false;
         }
         else {
-            i-=(lsP+x->myPositions);
+            i -= lsP + x->myPositions;
 #ifndef NDEBUG
             if (x->getRight()==getNil()) {
                 cout << "i: " << i << endl;
@@ -352,21 +354,23 @@ bool BVTree::operator[](ulong i){
             x = x->getRight();
         }
     }
-    return (*x->block)[i-1];
+    return (*x->block)[i - 1];
 }
 
 
 ulong BVTree::rank1(ulong i){
     BVNode *x = getRoot();
 
-    if (i == this->getPositions() + 1) i--;
-    #ifndef NDEBUG
+    if (i == this->getPositions() + 1) {
+        i--;
+    }
+#ifndef NDEBUG
     if (i > this->getPositions() ) {
         cerr << "error: rank1(0): invalid position in bittree: " << i << endl;
         cerr << "error: rank1(0): this->getPositions(): " <<  this->getPositions()<< endl;
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
     ulong lsP = 0;
     ulong lsR = 0;
@@ -383,43 +387,43 @@ ulong BVTree::rank1(ulong i){
             lsR = 0;
         }
 
-        if (lsP >= i)
-        {// cout << "L" << endl;
-            x=x->getLeft();
+        if (lsP >= i) {
+        // cout << "L" << endl;
+            x = x->getLeft();
         }
-        else if (lsP+x->myPositions >= i){
+        else if (lsP+x->myPositions >= i) {
             i-=lsP;
             rank+=lsR;
             search = false;
         }
-        else{//cout << "R" << endl;
-            i-=(lsP+x->myPositions);
-            rank+=(lsR+x->myRank);
-            x=x->getRight();
+        else { //cout << "R" << endl;
+            i -= lsP + x->myPositions;
+            rank += lsR + x->myRank;
+            x = x->getRight();
         }
     }
 
-    rank+=getLocalRank(x, i);
+    rank += getLocalRank(x, i);
     return rank;
 }
 
-ulong BVTree::rank0(ulong i){
+ulong BVTree::rank0(ulong i) {
     if (this->getPositions() == 0) return 0;
-    return (i-rank1(i));
+    return i - rank1(i);
 }
 
-ulong BVTree::select1(ulong i){
-    BVNode* x = getRoot();
-    ulong select=0;
-    #ifndef NDEBUG
+ulong BVTree::select1(ulong i) {
+    BVNode *x = getRoot();
+    ulong select = 0;
+#ifndef NDEBUG
     if (i > x->subTreeRank ) {
         cerr << "error: select1: invalid position in bittree: " << i << endl;
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
-    ulong lsP=0;
-    ulong lsR=0;
+    ulong lsP = 0;
+    ulong lsR = 0;
     bool search = true;
     //find the corresponding block:
     while (search)
@@ -435,17 +439,17 @@ ulong BVTree::select1(ulong i){
         }
 
         if (lsR >= i) {
-            x=x->getLeft();
+            x = x->getLeft();
         }
         else if (lsR+x->myRank >= i) {
-            i-=lsR;
-            select+=lsP;
+            i -= lsR;
+            select += lsP;
             search = false;
         }
         else {
-            i-=(lsR+x->myRank);
-            select+=(lsP+x->myPositions);
-            x=x->getRight();
+            i -= lsR + x->myRank;
+            select += lsP + x->myPositions;
+            x = x->getRight();
         }
     }
     select += getLocalSelect1(x, i);
@@ -486,23 +490,20 @@ ulong BVTree::select0(ulong i){
             lmP = 0;
         }
 
-        if (lsP-lsR >= i)
-        {
-            x=x->getLeft();
-        }
-        else if ((lsP-lsR)+(x->myPositions-x->myRank) >= i){
-            i-=lsP-lsR;
-            select+=lsP;
+        if (lsP-lsR >= i) {
+            x = x->getLeft();
+        } else if ((lsP-lsR)+(x->myPositions-x->myRank) >= i) {
+            i -= lsP - lsR;
+            select += lsP;
             search = false;
-        }
-        else{
-            i-=((lsP-lsR)+(x->myPositions-x->myRank));
-            select+=(lsP+x->myPositions);
-            x=x->getRight();
+        } else {
+            i -= ((lsP-lsR)+(x->myPositions-x->myRank));
+            select += (lsP+x->myPositions);
+            x = x->getRight();
         }
     }
 
-    select+=getLocalSelect0(x, i);
+    select += getLocalSelect0(x, i);
 
     return select;
 }
@@ -512,7 +513,7 @@ void BVTree::updateCountersOnPathToRoot(BVNode *walk){
 
     while (walk != getNil()) {
         updateCounters(walk);
-        walk=walk->getParent();
+        walk = walk->getParent();
     }
 }
 
@@ -534,7 +535,7 @@ void BVTree::deleteBit(ulong i){
     bool bit;
     ulong rank=0;
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (x == getNil()) {
         cerr << "error: deleteBit, root is empty\n"; //shouldn't happen
         exit(EXIT_FAILURE);
@@ -545,15 +546,14 @@ void BVTree::deleteBit(ulong i){
         cerr << "error: A, position " << i <<" in block not available, only " << x->myPositions <<" positions.\n"; //shouldn't happen
         exit(EXIT_FAILURE);
     }
-    #endif
+#endif
 
     ulong lsP=0;
     ulong lsR=0;
 
     bool search = true;
     //find the corresponding block:
-    while (search)
-    {
+    while (search) {
         // update of pointers is not yet possible: call updateCountersOnPathToRoot
 
         if (x->getLeft() != getNil()) {
@@ -564,11 +564,10 @@ void BVTree::deleteBit(ulong i){
             lsR = 0;
         }
 
-        if (lsP >= i)
-        {
-            #ifndef NDEBUG
+        if (lsP >= i) {
+#ifndef NDEBUG
             if (x->getLeft()==getNil()) exit(EXIT_FAILURE);
-            #endif
+#endif
             x=x->getLeft();
         }
         else if (lsP+x->myPositions >= i){
@@ -579,15 +578,15 @@ void BVTree::deleteBit(ulong i){
         else {
             i-=(lsP+x->myPositions);
             rank+=(lsR+x->myRank); // for speedup!
-            #ifndef NDEBUG
+#ifndef NDEBUG
             if (x->getRight()==getNil()) exit(EXIT_FAILURE);
-            #endif
+#endif
             x=x->getRight();
         }
     }
 
     // now delete the bit from the block x:
-    bit =(*x->block)[i-1];
+    bit = (*x->block)[i-1];
 
     // store bit and rank information for speedup
     _lastBitDeleted = bit;
@@ -894,9 +893,9 @@ void BVTree::insertBit(bool bit, ulong i){
         mask>>=logn;
         *x->block &= mask; //delete bits that already have been copied to the new block
 
-        newNode->block=newBlock;
-        newNode->myRank=(*newNode->block).count();
-        newNode->myPositions=logn;
+        newNode->block = newBlock;
+        newNode->myRank = (*newNode->block).count();
+        newNode->myPositions = logn;
         newNode->color=RED;
 
         //update old node x:
@@ -933,8 +932,8 @@ void BVTree::checkSubTree(BVNode *n){
         }
     }
 
-    if  ( (n->subTreePositions != (n->myPositions + lP + rP)) ||
-          (n->subTreeRank != (n->myRank + lR + rR)) ){
+    if ((n->subTreePositions != (n->myPositions + lP + rP)) 
+            || (n->subTreeRank != (n->myRank + lR + rR))) {
         cout << "checkSubTree: error" <<endl;
         cout << "lP: " << lP << endl;
         cout << "lR: " << lR << endl;

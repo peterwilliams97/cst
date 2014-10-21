@@ -84,22 +84,23 @@ bool CSA::THuffAlphabetRank::Test(uchar *s, ulong n) {
     int C[256];
     uint i, j;
     bool correct=true;
-    for (j = 0; j < 256; j++)
+    for (j = 0; j < 256; j++) {
         C[j] = 0;
+    }
     for (i = 0; i < n; i++) {
         C[(int)s[i]]++;
         if (C[(int)s[i]] != (int)rank((int)s[i],i)) {
-        correct = false;
-        printf("%d (%c): %d<>%d\n",i,(int)s[i]-128,C[(int)s[i]],(int)rank((int)s[i],i));
+            correct = false;
+            printf("%d (%c): %d<>%d\n",i,(int)s[i]-128,C[(int)s[i]],(int)rank((int)s[i],i));
         }
     }
     return correct;
 }
 
 CSA::THuffAlphabetRank::~THuffAlphabetRank() {
-    if (left != NULL) delete left;
-    if (right != NULL) delete right;
-    if (bitrank != NULL) delete bitrank;
+    delete left;
+    delete right;
+    delete bitrank;
 }
 
 
@@ -107,39 +108,43 @@ CSA::THuffAlphabetRank::~THuffAlphabetRank() {
 // Class CSA
 
 CSA::CSA(uchar *text, ulong n, uint samplerate, const char *loadFromFile, const char *saveToFile) {
-    this->n = n;
+    this->_n = n;
     this->samplerate = samplerate;
 
     uchar *bwt;
-    if (loadFromFile != 0)
+    if (loadFromFile != NULL) 
         bwt = LoadFromFile(loadFromFile);
     else
         bwt = BWT(text);
-    if (saveToFile != 0)
+
+    if (saveToFile != NULL) {
         SaveToFile(saveToFile, bwt);
+    }
 
     ulong i, min = 0, max;
     for (i = 0; i < 256; i++) {
-        C[i]=0;
+        C[i] = 0;
     }
     for (i = 0; i < n; ++i) {
         C[(int)bwt[i]]++;
     }
-    for (i=0;i<256;i++)
+    for (i = 0; i < 256; i++) {
         if (C[i]>0) {min = i; break;}
-    for (i=255;i>=min;--i)
+    }
+    for (i = 255; i >= min;--i) {
         if (C[i]>0) {max = i; break;}
+    }
     ulong prev=C[0], temp;
-    C[0]=0;
-    for (i=1;i<256;i++) {
+    C[0] = 0;
+    for (i = 1; i < 256; i++) {
         temp = C[i];
-        C[i]=C[i-1]+prev;
+        C[i] = C[i - 1] + prev;
         prev = temp;
     }
     this->codetable = node::makecodetable(bwt, n);
     alphabetrank = new THuffAlphabetRank(bwt, n, this->codetable,0);
     //if (alphabetrank->Test(bwt,n)) printf("alphabetrank ok\n");
-    delete [] bwt;
+    delete[] bwt;
 
     // Make tables
     maketables();
@@ -164,7 +169,7 @@ ulong CSA::lookup(ulong i) // Time complexity: O(samplerate log \sigma)
 ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
 {
     // Return 0 if SA[i] = n
-    if (lookup(i) == n - 1) {
+    if (lookup(i) == _n - 1) {
         return 0;
     }
 
@@ -178,7 +183,7 @@ ulong CSA::Psi(ulong i)   // Time complexity: O(samplerate log \sigma)
 
     // Move to j =  inverse SA[ SA[j] + samplerate ]
     // or to the end of the BWT
-    if (suffixes[sampled->rank(j)-1] / samplerate + 1 >= n / samplerate)
+    if (suffixes[sampled->rank(j) - 1] / samplerate + 1 >= _n / samplerate)
         j = bwtEndPos;
     else
         j = positions[suffixes[sampled->rank(j) - 1] / samplerate + 1];
@@ -205,16 +210,16 @@ uchar *CSA::substring(ulong i, ulong l) {
     ulong dist;
     ulong k = i + l - 1;
     // Check for end of the string
-    if (k > n - 1) {
-        l -= k - n + 1;
-        k = n - 1;
+    if (k > _n - 1) {
+        l -= k - _n + 1;
+        k = _n - 1;
     }
 
     ulong skip = samplerate - k % samplerate - 1;
     ulong j;
-    if (k / samplerate + 1 >= n / samplerate) {
+    if (k / samplerate + 1 >= _n / samplerate) {
         j = bwtEndPos;
-        skip = n - k - 1;
+        skip = _n - k - 1;
     } else {
         j = positions[k / samplerate + 1];
         //cout << samplerate << ' ' << j << '\n';
@@ -234,9 +239,9 @@ ulong CSA::inverse(ulong i) {
 
     ulong skip = samplerate - i % samplerate;
     ulong j;
-    if (i / samplerate + 1 >= n / samplerate) {
+    if (i / samplerate + 1 >= _n / samplerate) {
         j = bwtEndPos;
-        skip = n - i;
+        skip = _n - i;
     } else {
         j = positions[i / samplerate + 1];
         //cout << samplerate << ' ' << j << '\n';
@@ -281,14 +286,15 @@ CSA::~CSA() {
 
 void CSA::maketables() {
 
-    ulong sampleLength = (n % samplerate == 0) ? n / samplerate :  n / samplerate + 1;
+    //  (_n  +  samplerate - 1) / samplerate ?? !@#$
+    ulong sampleLength = (_n % samplerate == 0) ? _n / samplerate :  _n / samplerate + 1;
 
-    ulong *sampledpositions = new ulong[n / W + 1];
+    ulong *sampledpositions = new ulong[_n / W + 1];
     suffixes = new ulong[sampleLength];
     positions = new ulong[sampleLength];
 
     ulong i,j = 0;
-    for (i = 0; i < n / W + 1; i++) {
+    for (i = 0; i < _n / W + 1; i++) {
         sampledpositions[i] = 0lu;
     }
 
@@ -297,13 +303,13 @@ void CSA::maketables() {
     ulongmax--;
 
    //positions:
-    for (i=n-1;i<ulongmax;i--) { // TODO bad solution with ulongmax?
-      // i substitutes SA->GetPos(i)
-        x = (i==n-1) ? 0 : i + 1;
+    for (i = _n - 1; i < ulongmax; i--) { // TODO bad solution with ulongmax?
+        // i substitutes SA->GetPos(i)
+        x = (i == _n - 1) ? 0 : i + 1;
 
         if (x % samplerate == 0) {
-            Tools::SetField(sampledpositions,1,p,1);
-            positions[x/samplerate] = p;
+            Tools::SetField(sampledpositions, 1, p, 1);
+            positions[x / samplerate] = p;
 //         printf("positions[%lu] = %lu\n", x/samplerate, p);
         }
 
@@ -314,7 +320,7 @@ void CSA::maketables() {
 
 //      printf("Sampled positions:\n0123456789012345678901234567890123456789\n");
 //      Tools::PrintBitSequence(sampledpositions,n);
-    sampled = new BitRank(sampledpositions,n,true);
+    sampled = new BitRank(sampledpositions, _n, true);
 
 /*     printf("Is bit set test:\n");
     for (i = 0; i< n; i++)
@@ -327,8 +333,8 @@ void CSA::maketables() {
    //suffixes:
     for(i=0; i<sampleLength; i++) {
         j = sampled->rank(positions[i]);
-        if (j==0) j=sampleLength;
-        suffixes[ j-1] = (i*samplerate==n)?0:i*samplerate;
+        if (j == 0) j=sampleLength;
+        suffixes[j - 1] = (i * samplerate == _n) ? 0 : i * samplerate;
 //         printf("suffixes[%lu] = %lu\n", j-1, (i*samplerate==n)?0:i*samplerate);
     }
 }
@@ -340,8 +346,8 @@ uchar *CSA::LoadFromFile(const char *filename) {
     {
         std::cerr << "Loading CSA from file: " << filename << std::endl;
         file.read((char *)&bwtEndPos, sizeof(ulong));
-        s = new uchar[n];
-        for (ulong offset = 0; offset < n; offset ++)
+        s = new uchar[_n];
+        for (ulong offset = 0; offset < _n; offset++)
             file.read((char *)(s + offset), sizeof(char));
         file.close();
     }
@@ -359,8 +365,8 @@ void CSA::SaveToFile(const char *filename, uchar *bwt) {
     {
         std::cerr << "Writing CSA to file: " << filename << std::endl;
         file.write((char *)&bwtEndPos, sizeof(ulong));
-        std::cerr << "Writing BWT of " << n << " bytes." << std::endl;
-        for (ulong offset = 0; offset < n; offset ++)
+        std::cerr << "Writing BWT of " << _n << " bytes." << std::endl;
+        for (ulong offset = 0; offset < _n; offset++)
             file.write((char *)(bwt + offset), sizeof(char));
         file.close();
     }
@@ -374,20 +380,20 @@ void CSA::SaveToFile(const char *filename, uchar *bwt) {
 uchar *CSA::BWT(uchar *text) {
     uchar *s;
 
-    DynFMI *wt = new DynFMI((uchar *) text, n);
+    DynFMI *wt = new DynFMI((uchar *)text, _n);
     s = wt->getBWT();
-    for (ulong i=0;i<n;i++)
-        if (s[i]==0u) {
+    for (ulong i = 0; i < _n; i++) {
+        if (s[i] == 0u) {
             bwtEndPos = i;  // TODO: better solution ?
-            i = n;
+            i = _n;
         }
+    }
 
     delete wt;
     return s;
 }
 
-CSA::TCodeEntry *CSA::node::makecodetable(uchar *text, ulong n)
-{
+CSA::TCodeEntry *CSA::node::makecodetable(uchar *text, ulong n) {
     TCodeEntry *result = new TCodeEntry[256];
 
     count_chars( text, n, result );
@@ -395,9 +401,10 @@ CSA::TCodeEntry *CSA::node::makecodetable(uchar *text, ulong n)
 //
 // First I push all the leaf nodes into the queue
 //
-    for (uint i = 0 ; i < 256 ; i++) {
-        if (result[i].count)
+    for (uint i = 0; i < 256; i++) {
+        if (result[i].count) {
             q.push(node(i, result[i].count));
+        }
     }
 //
 // This loop removes the two smallest nodes from the
@@ -424,7 +431,7 @@ CSA::TCodeEntry *CSA::node::makecodetable(uchar *text, ulong n)
 
 void CSA::node::maketable(uint code, uint bits, TCodeEntry *codetable) const {
 
-    if (child0) {
+    if (child0 != NULL) {
         child0->maketable(SetBit(code, bits, 0), bits + 1, codetable);
         child1->maketable(SetBit(code, bits, 1), bits + 1, codetable);
         delete child0;

@@ -6,20 +6,21 @@ class BitRank {
 private:
     // Check word length
 #if W == 32
-    static const unsigned wordShift = 5;
-    static const unsigned superFactor = 8; // 256 bit blocks
+    static const uint wordShift = 5;
+    static const uint superFactor = 8; // 256 bit blocks
 #else
-    static const unsigned wordShift = 6;
-    static const unsigned superFactor = 4; // 256 bit blocks
+    static const uint wordShift = 6;
+    static const uint superFactor = 4; // 256 bit blocks
 #endif
     
-    ulong *data; //here is the bit-array
+    ulong *_data; //here is the bit-array
     bool owner;
-    ulong n,integers;
-    unsigned b,s; 
+    ulong n;
+    ulong _integers;  // Max integer in bit data
+    uint b, s; 
     ulong *Rs; //superblock array
     uchar *Rb; //block array
-    ReplacePattern *rp;
+    ReplacePattern *_rp;
     ulong BuildRankSub(ulong,  ulong); //internal use of BuildRank
     void BuildRank(); //crea indice para rank
 public:

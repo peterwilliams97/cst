@@ -69,25 +69,27 @@
    static char Excess[256];
    static bool tablesComputed = false;
 
-Parentheses::Parentheses (ulong *string, ulong n, bool bwd, BitRank *br) {
+Parentheses::Parentheses(ulong *string, ulong n, bool bwd, BitRank *br) {
 
      ulong i, s, nb, ns ,nbits;
      this->bp = string;
      this->n = n;
-     this->br = br;
+     this->_br = br;
      nbits = Tools::bits(n - 1);
      s = nbits * W;
      this->sbits = Tools::bits(s - 1);
      s = 1lu << sbits; // to take the most advantage of what we can represent
-     ns = (n+s-1)/s; nb = (s+W-1)/W; // adjustments
+     ns = (n + s - 1) / s; 
+     nb = (s + W - 1) / W; // adjustments
      near = far = pnear = pfar = 0lu;
      calcsizes();
 #ifdef INDEXREPORT
-     printf ("   Parentheses: total %i, near %i, far %i, pnear %i, pfar %i\n",n,near,far,pnear,pfar);
+     printf ("   Parentheses: total %i, near %i, far %i, pnear %i, pfar %i\n",
+            n, near, far, pnear, pfar);
 #endif
      this->sftable = new Hash(far, nbits, 1.8);
      this->bftable = new Hash(near, sbits, 1.8);
-    if (bwd){ 
+    if (bwd) { 
          this->sbtable = new Hash(pfar, nbits, 1.8);
          this->bbtable = new Hash(pnear, sbits, 1.8);
     } else {
@@ -96,7 +98,7 @@ Parentheses::Parentheses (ulong *string, ulong n, bool bwd, BitRank *br) {
      filltables(bwd);
      if (!tablesComputed) {
          tablesComputed = true;
-         for (i=0; i < 256; i++)  {
+         for (i = 0; i < 256; i++)  {
                 fcompchar((uchar)i, FwdPos[i], Excess+i); //printf("i = %d\t, FwdPos[i] = %c\t, Excess+i = %c\n", i,FwdPos[i],Excess+i);
                 bcompchar((uchar)i, BwdPos[i]);//printf("i = %d\t, BwdPos[i] = %c\t, Excess+i = %c\n", i,BwdPos[i],Excess+i);
             }
@@ -117,30 +119,31 @@ void Parentheses::calcsizes()
     node->push(~0); // Parent that does not exist
 
     // Iterate bit vector
-    for (ulong i = 0; i < n; i ++)
-        if (br->IsBitSet(i)) {
+    for (ulong i = 0; i < n; i++) {
+        if (_br->IsBitSet(i)) {
             node->push(i);  // Push node position
-        } else{
+        } else {
             ulong posopen = node->top();   // Pop Open-leaf position from stack
             node->pop();
             ulong posparent = node->top(); // Peak for parent node position
 
-            if ((i < n) && (i-posopen > W)) // exists and not small
+            if (i < n && i - posopen > W) // exists and not small
             {
-                if (i-posopen < (ulong)(1lu <<sbits))
+                if (i - posopen < (ulong)(1lu << sbits))
                     this->near++; // near pointer
                 else
                     this->far++;
             }
 
-            if ((posopen > 0) && (posopen-posparent > W)) // exists and not small
+            if (posopen > 0 && posopen-posparent > W) // exists and not small
             {
-                if (posopen-posparent < (ulong)(1lu <<sbits))
+                if (posopen - posparent < (ulong)(1lu << sbits))
                     this->pnear++; // near pointer
                 else
                     this->pfar++;
             }
         }
+    }
     delete node;
 }
 
@@ -178,7 +181,7 @@ void Parentheses::filltables(bool bwd)
 
     // Iterate bit vector
     for (ulong i = 0; i < n; i ++)
-        if (br->IsBitSet(i)) {
+        if (_br->IsBitSet(i)) {
             node->push(i);  // Push node position
         } else {
             ulong posopen = node->top();   // Pop Open-leaf position from stack
@@ -382,7 +385,7 @@ ulong Parentheses::excess(ulong i) {
     if (i == 0) {
         return 0;
     }
-    return br->rank(i - 1) * 2 - i;
+    return _br->rank(i - 1) * 2 - i;
 }
 
 // open position of closest parentheses pair that contains the pair
@@ -396,5 +399,5 @@ ulong Parentheses::enclose(ulong i) {
 }
 
 ulong Parentheses::isOpen(ulong i) {
-    return br->IsBitSet(i);
+    return _br->IsBitSet(i);
 }

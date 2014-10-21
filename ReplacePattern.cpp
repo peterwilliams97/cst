@@ -67,7 +67,7 @@ ulong ReplacePattern::returnWord(ulong *data, ulong index, ulong n)
 
         result |= value << (i - index);
 
-        k --;
+        k--;
         i += sampleRate - 1;
     }
 

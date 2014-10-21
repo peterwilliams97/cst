@@ -32,17 +32,19 @@
 
 #include "bittree.h"
 
+/*
 #ifndef uchar
 #define uchar unsigned char
 #endif
 #ifndef ulong
 #define ulong unsigned long
 #endif
+*/
 
 using namespace std;
 
 class WaveletNode {
-    public:
+public:
 
     WaveletNode *left;
     WaveletNode *right;
@@ -54,7 +56,8 @@ class WaveletNode {
     BVTree *bittree;
 
     WaveletNode(uchar c)
-        : left(0), right(0), parent(0), weight(0), c0(c), bittree(0){}
+        : left(0), right(0), parent(0), weight(0), c0(c), bittree(0) {
+    }
 
     WaveletNode(WaveletNode *left, WaveletNode *right)
         : left(left), right(right), parent(0), bittree(0) {
@@ -74,12 +77,14 @@ class WaveletNode {
 
 namespace std {
 
-template<> struct greater<WaveletNode *> {
-    bool operator()(WaveletNode const *p1, WaveletNode const *p2) {
-        if (p1 == NULL)
-            return false;
-        if (p2 == NULL)
-            return true;
+    template<> struct greater<WaveletNode *> {
+        bool operator()(WaveletNode const *p1, WaveletNode const *p2) {
+            if (p1 == NULL) {
+                return false;
+            }
+            if (p2 == NULL) {
+                return true;
+            }
         return *p1 > *p2;
         }
     };
@@ -103,7 +108,7 @@ public:
     //LF(i)-mapping: C[L[i]]+rank_L[i](L,i)
     ulong LFmapping(ulong i) {
         uchar s = (*this)[i];
-        return (ulong)getNumberOfSymbolsSmallerThan(s) + rank(s,i);
+        return (ulong)getNumberOfSymbolsSmallerThan(s) + rank(s, i);
     }
 
     void printDynFMIContent(ostream& stream);
@@ -112,9 +117,9 @@ private:
     WaveletNode *root;
     WaveletNode **leaves;
 
-    ulong codes[256];
+    ulong _codes[256];
     int codelengths[256];
-    ulong C[256+256];
+    ulong C[256 + 256];
 
     ulong iterate;
 
@@ -145,7 +150,7 @@ private:
 
     // small help functions
     double log2(double x){
-        return (log10(x) / log10((double)2));
+        return (log10(x) / log10(2.0));
     }
 
     int binaryTree_parent(int i){
@@ -161,10 +166,10 @@ private:
     }
 
     bool binaryTree_isLeftChild(int i){
-        return (i % 2 == (int)0);
+        return (i % 2 == 0);
     }
 
     bool binaryTree_isRightChild(int i){
-        return (i % 2 == (int)1);
+        return (i % 2 == 1);
     }
 };

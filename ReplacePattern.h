@@ -3,8 +3,7 @@
 #include <iostream>
 #include "Tools.h"
 
-class ReplacePattern
-{
+class ReplacePattern {
 private:
     ulong *answer;
     uint sampleRate;

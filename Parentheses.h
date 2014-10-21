@@ -42,24 +42,27 @@ uint sizeofParentheses(parentheses P);*/
 #include "Tools.h"
 #include "BitRank.h"
 #include "Hash.h"
-#define bitget1(e,p) ((e)[(p)/W] & (1lu<<((p)%W)))
+#define bitget1(e, p) ((e)[(p) / W] & (1lu << ((p) % W)))
+
 class Parentheses
 {
 private:
     ulong *bp;
-    BitRank *br;
+    BitRank *_br;
     ulong n, near, far, pnear, pfar;
-    unsigned sbits;
+    uint sbits;
     Hash *sftable;
     Hash *sbtable;
     Hash *bftable;
     Hash *bbtable;
+
     void calcsizes();
     void filltables(bool);
-    void fcompchar(uchar, uchar*, char*);
-    void bcompchar(uchar, uchar* );
+    void fcompchar(uchar, uchar *, char*);
+    void bcompchar(uchar, uchar *);
+
 public:
-    Parentheses(ulong* bp, ulong n, bool bwd, BitRank *);
+    Parentheses(ulong *bp, ulong n, bool bwd, BitRank *);
     ~Parentheses();
     ulong findopen(ulong);
     ulong findclose(ulong);

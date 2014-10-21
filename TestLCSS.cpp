@@ -25,13 +25,24 @@
 #include "Tools.h"
 using namespace std;
 
-static const char *
-alphabet = "abcdefghijklmnopqrstuvxxyz ";
-static const char *
-quick_brown = "the quick brown fox jumped over the lazy dog ";
+static char *
+alphabet = "abcdefghijklmnopqrstuvxxyz T.";
+static char *
+quick_brown = "The quick brown fox jumped over the lazy dog. ";
+
 
 // Longest Common SubString (A, B)
 void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
+
+    if (show_strings >= 1) {
+        printf("---------------------------------------------------------\n");
+        printf("n_chars=%d=%.1fmb,n_overlap=%d\n", n_chars, 
+                (double)n_chars / (double)MBYTE, n_overlap); 
+    }
+
+    if (4 * n_overlap > n_chars) {
+        n_chars = 4 * n_overlap;
+    }
 
 #if 1
     // A=aaabbbccc, B=ccbbbaa ==> lcss(A,B)=bbb
@@ -41,22 +52,56 @@ void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
     //const char *A = "12345", *B = "3456";
     //uchar *text = (uchar *)"12345$3456";
     char *A = (char *)calloc(n_chars + 1, 1);
+    if (A == NULL) {
+        fprintf(stderr, "calloc %d failed\n", n_chars + 1);
+    }
     char *B = (char *)calloc(n_chars + 1, 1);
-    int n_alphabet = strlen(alphabet);
-    int n_quick_brown = strlen(quick_brown);
+    if (A == NULL) {
+        fprintf(stderr, "calloc %d failed\n", n_chars + 1);
+    }
+    int n_alphabet = (int)strlen(alphabet);
+    int n_quick_brown = (int)strlen(quick_brown);
     for (int i = 0; i < n_chars; i++) {
+#if 0
         A[i] = alphabet[i % n_alphabet];
         B[i] = alphabet[i % n_alphabet];
-        if (i % 10  == 0 && i > 1) {
+        if (i % 3  == 0 && i > 1) {
             B[i] = B[i - 1];
         }
+#else
+        uchar xx = 1 + rand() % 255;
+        int k = rand() % 100;
+        if (k < 95) {
+            xx = 1 + xx % 25;
+        }
+        if (k < 80) {
+            xx = 1 + xx % 4;
+        }
+        if (k < 40) {
+            xx = 1 + xx % 2;
+        }
+        //uchar xx = ' ' + i % 100;
+        A[i] = B[i] = (char)xx;
+        int j = i % n_overlap;
+        if (j < 3) {
+            B[i] += j + 1;
+        }
+        if (B[i] == 0) {
+            B[i] = 'Q';
+        }
+#endif
+        
     }
-    for (int i = n_chars / 2; i < n_overlap; i++) {
-        A[i] = quick_brown[i % n_quick_brown];
-        B[i] = quick_brown[i % n_quick_brown];
+    int i0a = (n_chars - n_overlap) / 2;
+    int i0b = (n_chars - n_overlap) / 3;
+    for (int i = 0; i < n_overlap; i++) {
+        A[i0a + i] = quick_brown[i % n_quick_brown];
+        B[i0b + i] = quick_brown[i % n_quick_brown];
     }
-    A[n_overlap] = 'X';
-    B[n_overlap] = 'Y';
+    A[i0a - 1] = 'A';
+    B[i0b - 1] = 'B';
+    A[i0a + n_overlap] = 'C';
+    B[i0b + n_overlap] = 'D';
 
     string s_A = string(A);
     string s_B = string(B);
@@ -81,11 +126,13 @@ void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
     ulong splitpos = s_A.size(); // A is to the left, B is to the right
 
     if (show_strings >= 1) {
-        cout << "\nCreating Sadakane's suffix tree n = " << n << "  ...\n";
+        cout << "\nCreating Sadakane's suffix tree n = " << n 
+            << " = " << (double)n / (double)MBYTE << "mb  ...\n";
     }
 
     Tools::StartTimer();
     double total_time = 0.0;
+    double construction_time = 0.0;
     int num_loops = 0;
 
     do {
@@ -131,6 +178,8 @@ void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
             printf("lastleaf = %lu\n", lastleaf);
             printf("lastleaf/n = %.1f\n", (double)lastleaf / (double)n);
         }
+
+        construction_time = Tools::GetTime();
 
         bool *left = new bool[lastleaf + 1];
         bool *right = new bool[lastleaf + 1];
@@ -187,7 +236,8 @@ void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
         * in the tree satisfying the condition.                            *
         *******************************************************************/
 
-        ulong maxdepth=0, maxindex=0;
+        ulong maxdepth = 0;
+        ulong maxindex = 0;
         for (ulong i = 0; i <= lastleaf; i++) {
             if (sst->isOpen(i) && left[i] && right[i] && sst->depth(i) > maxdepth) {
                 maxdepth = sst->depth(i);
@@ -195,15 +245,18 @@ void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
             }
         }
 
+        printf("maxdepth=%d,maxindex=%d,construction_time=%.1f\n", 
+                maxdepth, maxindex, construction_time);
+
         // Let's find a text position containing the substring
         // ulong textpos = sst->textpos(sst->firstChild(maxindex));
         if (show_strings >= 2) {
-            cout << "lcss(\nA='" << A << "',\nB='" << B << "')\n='";
+            cout << "lcss(\nA='" << A << "',\nB='" << B << "')\n=";
         }
-        
+
         uchar *pathlabel = sst->pathlabel(maxindex);
-        if (show_strings >= 1) {
-            cout << (char *)pathlabel << "'\n\n";
+        if (show_strings >= 0) {
+            cout << "'" << (char *)pathlabel << "'\n\n";
         }
         free(pathlabel);
 
@@ -214,9 +267,12 @@ void lcss(int n_chars, int n_overlap, int show_strings, double min_time) {
         num_loops += 1;
     } while ((total_time = Tools::GetTime()) < min_time);
 
+    double ave_constr_time = construction_time / (double)num_loops;
     double ave_time = total_time / (double)num_loops;
-    printf("n=%d,n_chars=%d,n_overlap=%d,time=%.2f,chars/sec=%.1f\n", n, n_chars, n_overlap, 
-            ave_time, (double)n / ave_time);
+    printf("***:n=%d=%.1fm,n_chars=%d,n_overlap=%d,time=%.3f(%.3f),chars/sec=%.0f(%0.f)\n", 
+            n, (double)n / MBYTE, n_chars, n_overlap, 
+            ave_time, ave_constr_time, 
+            (double)n / ave_time, (double)n / ave_constr_time);
     fflush(stdout);
 }
 
@@ -224,32 +280,51 @@ int main() {
     //_CrtSetBreakAlloc(950);
     int show_strings = 0;
     double min_time = 5.0;
+    
+    lcss(10 * KBYTE, 50, show_strings, min_time);
+    lcss(99 * KBYTE, 50, show_strings, min_time);
+    lcss( 1 * MBYTE, 50, show_strings, min_time);
+    lcss( 1 * MBYTE, 500, show_strings, min_time);
+    lcss( 1 * MBYTE, 5000, show_strings, min_time);
+    lcss( 1 * MBYTE, 50000, show_strings, min_time);
+    lcss( 3 * MBYTE, 50, show_strings, min_time);
+    lcss(10 * MBYTE, 50, show_strings, min_time);
+    lcss(30 * MBYTE, 50, show_strings, min_time);
+    lcss(99 * MBYTE, 50, show_strings, min_time);
 
     for (int num_passes = 0; num_passes < 10; num_passes++) {
+#if 1
+        /*
         for (int i = 1; i < 10; i++) {
-            lcss(i * 100 * 1000,    50, show_strings, min_time);
-            lcss(i * 100 * 1000,  5000, show_strings, min_time);
-            lcss(i * 100 * 1000, 50000, show_strings, min_time);
+            lcss(i * 100 * KBYTE,    50, show_strings, min_time);
+           // lcss(i * 100 * KBYTE,  5000, show_strings, min_time);
+           // lcss(i * 100 * KBYTE, 50000, show_strings, min_time);
         }
-        for (int i = 1; i < 10; i++) {
-            lcss(i * 1000 * 1000, 50, show_strings, min_time);
-        }
-        for (int i = 1; i < 10; i += 2) {
-            lcss(i * 10 * 1000 * 1000, 50, show_strings, min_time);
-        }
-        for (int i = 1; i < 10; i += 2) {
-            lcss(i * 100 * 1000 * 1000, 50, show_strings, min_time);
-        }
-        for (int i = 1; i < 10; i += 2) {
-            lcss(i * 1000 * 1000 * 1000, 50, show_strings, min_time);
+        */
+        for (int i = 2; i < 13; i++) {
+            lcss(i * MBYTE, 50, show_strings, min_time);
         }
 
-        lcss(1 * 1000 * 1000, 50000, show_strings, min_time);
-        lcss(2 * 1000 * 1000, 50000, show_strings, min_time);
-        lcss(5 * 1000 * 1000, 50000, show_strings, min_time);
-        lcss(10 * 1000 * 1000, 1000 * 1000, show_strings, min_time);
-        lcss(30 * 1000 * 1000, 1000 * 1000, show_strings, min_time);
-        lcss(99 * 1000 * 1000, 1000 * 1000, show_strings, min_time);
+#endif
+#if 0
+        for (int i = 1; i < 10; i += 2) {
+            lcss(i * 10 * MBYTE, 50, show_strings, min_time);
+        }
+
+        for (int i = 1; i < 10; i += 2) {
+            lcss(i * 100 * MBYTE, 50, show_strings, min_time);
+        }
+
+        for (int i = 1; i < 10; i += 2) {
+            lcss(i * GBYTE, 50, show_strings, min_time);
+        }
+#endif
+        lcss( 1 * MBYTE, 50000, show_strings, min_time);
+        lcss( 2 * MBYTE, 50000, show_strings, min_time);
+        lcss( 5 * MBYTE, 50000, show_strings, min_time);
+        lcss(10 * MBYTE, MBYTE, show_strings, min_time);
+        lcss(30 * MBYTE, MBYTE, show_strings, min_time);
+        lcss(99 * MBYTE, MBYTE, show_strings, min_time);
     }
 #ifdef WIN32
     /* Dump memory leaks if win32 debug build */

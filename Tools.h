@@ -10,14 +10,29 @@
 #include <ctime>
 #include <climits>
 #include <cstdlib>
+#include <stdint.h>
 
+#define KBYTE 1024
+#define MBYTE (KBYTE * KBYTE)
+#define GBYTE (KBYTE * MBYTE)
+
+// DEBUG FLAGS !@#$
+#define NDEBUG 1
+//#define INDEXREPORT 1 
+//#define DEBUG_CRMQ 1
+//#define DEBUG_SUBBLOCK_RMQ 1
+#define SSTREE_TIMER 1
+//#define SSTREE_HEAPPROFILE 1
+
+#ifdef WIN32
 //  _WIN64 is for the windows build, __amd64__ is for gcc (linux/mac)
-#if defined(_WIN64) || defined(__amd64__)
- #define __WORDSIZE 64
-#else
- #define __WORDSIZE 32
+ #if defined(_WIN64) || defined(__amd64__)
+  #define __WORDSIZE 64
+ #else
+  #define __WORDSIZE 32
+  //#error "Want 64 bit"
+ #endif
 #endif
-
 
 // Generates an error if __WORDSIZE is not defined
 #ifndef __WORDSIZE
@@ -41,9 +56,18 @@
 #ifndef uint
 #define uint unsigned int
 #endif
-#ifndef ulong
-#define ulong unsigned long
-#endif
+//#ifndef ulong
+
+ #if __WORDSIZE == 64
+//#define ulong uint64_t
+  //#define ulong unsigned long long
+typedef uint64_t ulong;
+ #else
+   //#error "Want 64 bit (2)"
+  //#define ulong unsigned long
+   typedef unsigned long ulong;
+ #endif
+//#endif
 
 #ifdef _WIN32
 double log2(double x);
@@ -52,7 +76,7 @@ double log2(double x);
 class Tools
 {
 private:
-    static time_t startTime;
+    static double startTime;
 public:
     static void StartTimer();
     static double GetTime();
@@ -82,8 +106,7 @@ public:
         }
     }
 
-    static inline ulong GetField(ulong *A, uint len, ulong index)
-    {
+    static inline ulong GetField(ulong *A, uint len, ulong index) {
         ulong i = index * len / W;
         ulong j = index * len - W * i;
         ulong result;

@@ -54,25 +54,30 @@ private:
 
     ulong lookupSub(ulong, ulong, ulong) const;
     ulong lookupSubblock(ulong, ulong, ulong, ulong) const;
+
     void SetSubM(ulong j, ulong i, ulong k, ulong value)    // Set value of M_j[i, k]
     {
         Tools::SetField(subM, widthSubM, j * (sampleRate / subSampleRate) * widthSubM + i * widthSubM + k, value);
     }
+
     ulong GetSubM(ulong j, ulong i, ulong k) const   // Get value of M_j[i, k]
     {
-        if (i * subSampleRate + j * sampleRate >= n)
+        if (i * subSampleRate + j * sampleRate >= n) {
             return 0;
+        }
         return Tools::GetField(subM, widthSubM, j * (sampleRate / subSampleRate) * widthSubM + i * widthSubM + k);
     }
 
     ulong GetSubblockIndex(ulong j, ulong i) const // Get the index of a minimum value inside a subblock i of block j
     {
         ulong subblockStart = i * subSampleRate / blockSampleRate + j * sampleRate / blockSampleRate;
-        if (subblockStart * blockSampleRate >= n)
+        if (subblockStart * blockSampleRate >= n) {
             return n - 1;
+        }
         ulong minIndex = srmq->lookup(Tools::GetField(P, blockSampleRate, subblockStart), 0, blockSampleRate - 1) + subblockStart * blockSampleRate;
-        if (minIndex >= n)
+        if (minIndex >= n) {
             minIndex = n - 1;
+        }
         ulong minValue = GetValue(minIndex);
 //         printf("j = %d, i = %d, subblockStart = %d, minIndex = %d (%d)\n", j, i, subblockStart, minIndex, minValue);
         for (ulong k = 1; k < (subSampleRate / blockSampleRate) && (subblockStart + k) * blockSampleRate < n; k ++)
@@ -80,10 +85,10 @@ private:
 //             printf("srmq->lookup(%d, %d, %d)\n", Tools::GetField(P, blockSampleRate, subblockStart + k), 0, blockSampleRate - 1);
             ulong index = srmq->lookup(Tools::GetField(P, blockSampleRate, subblockStart + k), 0, blockSampleRate - 1) + (subblockStart + k) * blockSampleRate;
 //             printf("subblockStart = %d (%d), index = %d (%d)\n", subblockStart + k, (subblockStart + k) * blockSampleRate, index, GetValue(index));
-            if (index >= n)
+            if (index >= n) {
                 index = n - 1;
-            if (minValue > GetValue(index))
-            {
+            }
+            if (minValue > GetValue(index)) {
                 minValue = GetValue(index);
                 minIndex = index;
             }

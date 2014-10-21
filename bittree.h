@@ -41,17 +41,19 @@
 #include "rbtree.h"
 #include "Tools.h"
 
+/*
 #ifndef uchar
 #define uchar uchar
 #endif
 #ifndef ulong
 #define ulong unsigned long
 #endif
+*/
 
 class BVNode;
 class BVTree;
 
-const int logn = (W * 2);
+const int logn = W * 2;
 
 void callUpdateCounters(RBNode *n, RBTree *T);
 void callUpdateCountersOnPathToRoot(RBNode *n, RBTree *T);

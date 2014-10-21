@@ -1,8 +1,11 @@
 /*
  * Collection of basic tools and defines
  */
-
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include "Tools.h"
 
@@ -14,15 +17,53 @@ double log2(double x) {
 }
 #endif
 
-time_t Tools::startTime;
+typedef int64_t os_time_millis_t;
+
+/*
+ * Returns the number of milliseconds since the epoch.
+ * This code is inspired by the Java JVM implementation of System.currentTimeMillis()
+ */
+double
+my_time() {
+#ifdef WIN32
+    #define FT2INT64(ft) ((os_time_millis_t)(ft).dwHighDateTime << 32 | (os_time_millis_t)(ft).dwLowDateTime)
+    static os_time_millis_t fileTime_1_1_70 = 0;
+    SYSTEMTIME st0;
+    FILETIME   ft0;
+
+    if (fileTime_1_1_70 == 0) {
+        /* Initialize fileTime_1_1_70 -- the Win32 file time of midnight
+         * 1/1/70.
+         */
+        memset(&st0, 0, sizeof(st0));
+        st0.wYear  = 1970;
+        st0.wMonth = 1;
+        st0.wDay   = 1;
+        SystemTimeToFileTime(&st0, &ft0);
+        fileTime_1_1_70 = FT2INT64(ft0);
+    }
+
+    GetSystemTime(&st0);
+    SystemTimeToFileTime(&st0, &ft0);
+
+    return (FT2INT64(ft0) - fileTime_1_1_70) / 10000.0 / 1000.0;
+
+#else
+    struct timeval t;
+    gettimeofday(&t, 0);
+    return ((os_time_millis_t)t.tv_sec) * 1000 + (os_time_millis_t)(t.tv_usec/1000);
+#endif
+}
+
+double Tools::startTime;
 
 void Tools::StartTimer() {
-    startTime = time(NULL);
+    startTime = my_time();
 }
 
 double Tools::GetTime() {
     time_t stopTime = time(NULL);
-    return difftime(stopTime, startTime);
+    return my_time() - startTime;
 }
 
 uchar *Tools::GetRandomString(uint min, uint max, uint &alphabetSize) {
@@ -198,7 +239,7 @@ void Tools::RemoveControlCharacters(uchar *data)
 
 }
 */
-uint Tools::bits (ulong n) {
+uint Tools::bits(ulong n) {
     uint b = 0;
     while (n) {
         b++;

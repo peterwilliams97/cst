@@ -115,18 +115,19 @@ ulong LcpToParentheses::DeltaArray::GetNext(ulong &index)
 ////////////////////////////////////////////////////////////////////////////
 // Class LcpToParentheses
 
-ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong &bitsInP)
+ulong *LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong &bitsInP)
 {
-    if (n == 0)
+    if (n == 0) {
         return 0;
+    }
 
     ulong sumIndex, sumValue;
 
     // Add the root and the first leaf
     BVTree *P = new BVTree();
-    #ifdef LCPTOPARENTHESES_DEBUG
-        printf("Append (()\n");
-    #endif
+#ifdef LCPTOPARENTHESES_DEBUG
+    printf("Append (()\n");
+#endif
     P->appendBit(true);
     P->appendBit(true);
     P->appendBit(false);
@@ -139,45 +140,44 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
     E->Add(n);
 
     // Add rest of the leafs
-    for (ulong i = 1; i < n; i ++)
+    for (ulong i = 1; i < n; i++)
     {
-        #ifdef LCPTOPARENTHESES_DEBUG
-            printf("p = %lu, i = %lu\n", p, i);
-        #endif
+#ifdef LCPTOPARENTHESES_DEBUG
+    printf("p = %lu, i = %lu\n", p, i);
+#endif
         ulong lcp = hgt->GetPos(i - 1);
 
         // Find the number of nodes to skip
         ulong j = 1;
         sumValue = E->Sum(j, sumIndex); // Passing sumIndex by reference
-        while (n - sumValue > lcp)
-        {
-            j ++;
+        while (n - sumValue > lcp) {
+            j++;
             sumValue += E->GetNext(sumIndex);
         }
 
         ulong splitLcp = n - sumValue;
 
 #ifdef LCPTOPARENTHESES_DEBUG
-            printf("j = %lu\n", j);
-            printf("Append %lu closing parentheses\n", j - 1);
+        printf("j = %lu\n", j);
+        printf("Append %lu closing parentheses\n", j - 1);
 #endif
 
         // Append j - 1 closing parentheses
-        for (ulong k = 0; k < j - 1; k ++)
+        for (ulong k = 0; k < j - 1; k++) {
             P->appendBit(false);
+        }
 
-        if (splitLcp < lcp)
-        {
+        if (splitLcp < lcp) {
             // Get split node's index
             ulong r = p - D->Sum(j - 1, sumIndex);
 #ifdef LCPTOPARENTHESES_DEBUG
-                printf("r = %lu\n", r);
-                printf("Inserting ( to index %lu\n", r);
-                printf("Removing %lu from E\n", j);
-                printf("Adding %lu to E\n", lcp - splitLcp);
-                printf("Adding %lu to E\n", n - lcp);
-                printf("Removing %lu from D\n", j - 1);
-                printf("Adding %lu to D\n", p + j + 2 - r);
+            printf("r = %lu\n", r);
+            printf("Inserting ( to index %lu\n", r);
+            printf("Removing %lu from E\n", j);
+            printf("Adding %lu to E\n", lcp - splitLcp);
+            printf("Adding %lu to E\n", n - lcp);
+            printf("Removing %lu from D\n", j - 1);
+            printf("Adding %lu to D\n", p + j + 2 - r);
 #endif
 
             P->insertBit(true, r + 1);
@@ -220,17 +220,17 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
     // Find the number of nodes to close
     ulong j = 1;
     sumValue = E->Sum(j, sumIndex); // Passing sumIndex by reference
-    while (n - sumValue > 0)
-    {
-        j ++;
+    while (n - sumValue > 0) {
+        j++;
         sumValue += E->GetNext(sumIndex);
     }
 
 #ifdef LCPTOPARENTHESES_DEBUG
         printf("Append %lu closing parentheses to end\n", j);
 #endif
-    for (ulong k = 0; k < j; k ++)
+    for (ulong k = 0; k < j; k++) {
         P->appendBit(false);
+    }
 
     ulong *bp = P->getBits();
     bitsInP = P->getPositions();
@@ -247,39 +247,35 @@ ulong * LcpToParentheses::GetBalancedParentheses(CHgtArray *hgt, ulong n, ulong 
 ulong *LcpToParentheses::GetBalancedParentheses(const char *filename, ulong &bitsInP)
 {
     std::ifstream file (filename, ios::in|ios::binary);
-    if (file.is_open())
-    {
-        std::cout << "Loading balanced parentheses from file: " << filename << std::endl;
-        file.read((char *)&bitsInP, sizeof(ulong));
-        ulong *bp = new ulong[bitsInP / W + 1];
-        for (ulong offset = 0; offset < (bitsInP/W + 1); offset ++)
-            file.read((char *)(bp + offset), sizeof(ulong));
-        file.close();
-        return bp;
-    }
-    else
-    {
+    if (!file.is_open())   {
         std::cout << "Unable to open file " << filename << std::endl;
         exit(1);
     }
-    return 0;
+    
+    std::cout << "Loading balanced parentheses from file: " << filename << std::endl;
+    file.read((char *)&bitsInP, sizeof(ulong));
+    ulong *bp = new ulong[bitsInP / W + 1];
+    for (ulong offset = 0; offset < (bitsInP / W + 1); offset++) {
+        file.read((char *)(bp + offset), sizeof(ulong));
+    }
+    file.close();
+    return bp;
+
 }
 
 void LcpToParentheses::SaveToFile(const char *filename, ulong *bp, ulong bitsInP)
 {
     std::ofstream file (filename, ios::out|ios::binary|ios::trunc);
-    if (file.is_open())
-    {
-        std::cout << "Writing balanced parentheses to file: " << filename << std::endl;
-        file.write((char *)&bitsInP, sizeof(ulong));
-        std::cout << "Writing balanced parentheses of " << (bitsInP/W + 1) << " words." << std::endl;
-        for (ulong offset = 0; offset < (bitsInP/W + 1); offset ++)
-            file.write((char *)(bp + offset), sizeof(ulong));
-        file.close();
-    }
-    else
-    {
+    if (!file.is_open()) {
         std::cout << "Unable to open file " << filename << std::endl;
         exit(1);
     }
+
+    std::cout << "Writing balanced parentheses to file: " << filename << std::endl;
+    file.write((char *)&bitsInP, sizeof(ulong));
+    std::cout << "Writing balanced parentheses of " << (bitsInP/W + 1) << " words." << std::endl;
+    for (ulong offset = 0; offset < (bitsInP/W + 1); offset ++)
+        file.write((char *)(bp + offset), sizeof(ulong));
+    file.close();
+
 }

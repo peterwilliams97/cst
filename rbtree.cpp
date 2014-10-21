@@ -32,7 +32,7 @@ void RBTree::checkTree(){
 
 void RBTree::leftRotate(RBNode *x, void (*updateNode)(RBNode *n, RBTree *T)){
     RBNode *y = x->right;
-    x->right=y->left;
+    x->right = y->left;
     if (y->left != nil) y->left->parent=x;
     y->parent = x->parent;
     if (x->parent == this->nil) {
